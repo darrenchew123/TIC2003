@@ -1,0 +1,13 @@
+# ninja log v5
+0	634	1706430025965272341	src/spa/CMakeFiles/spa.dir/src/QueryProcessor.cpp.o	e17d269d62de557e
+0	638	1706430025969185002	src/spa/CMakeFiles/spa.dir/src/Database.cpp.o	20c6c8c548612b57
+1	647	1706430025981700700	src/spa/CMakeFiles/spa.dir/src/Tokenizer.cpp.o	c3ab7666f24864e3
+1	680	1706430026014383750	src/spa/CMakeFiles/spa.dir/src/SourceProcessor.cpp.o	b6df1bb26974b87e
+1	701	1706430026034760728	src/autotester/CMakeFiles/autotester.dir/src/TestWrapper.cpp.o	f800330f2e1e4a3e
+1	702	1706430026036170449	src/unit_testing/CMakeFiles/unit_testing.dir/src/TestDatabase.cpp.o	4aa67b257e520115
+2	704	1706430026039626564	src/unit_testing/CMakeFiles/unit_testing.dir/src/TestTokenzier.cpp.o	61176001cd8ffed8
+1	1024	1706430026358939532	src/spa/CMakeFiles/spa.dir/src/sqlite3.c.o	bbfba1c22b444a24
+1024	1154	1706430026493837000	src/spa/libspa.a	81f67dcc05e117f7
+1154	1195	1706430026533083628	src/autotester/autotester	29662f1562c62f80
+2	2219	1706430027550032404	src/unit_testing/CMakeFiles/unit_testing.dir/src/main.cpp.o	3c0410411fd5b086
+2219	2284	1706430027622034897	src/unit_testing/unit_testing	529485d9c409b390

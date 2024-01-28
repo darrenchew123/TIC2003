@@ -1,0 +1,15 @@
+<?xml-stylesheet type="text/xsl" href="analysis.xsl"?>
+<test_results>
+<info>
+<name>autotester</name><parsing_time_taken>4.200000</parsing_time_taken>
+</info>
+<queries>
+<query>
+<id ReturnTuple="1" CondNum="1" RelNum="0" comment="comment">1</id><querystr><![CDATA[procedure p; Select p;]]></querystr>
+<stuans>echo</stuans>
+<correct>echo</correct>
+<time_taken>1.067000</time_taken>
+<passed/>
+</query>
+</queries>
+</test_results>

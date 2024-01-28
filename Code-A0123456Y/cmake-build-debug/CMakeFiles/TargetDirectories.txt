@@ -1,0 +1,11 @@
+/Users/chewd1/Downloads/MAC_M1_StartupSPASolution/A0123456Y/Code-A0123456Y/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/chewd1/Downloads/MAC_M1_StartupSPASolution/A0123456Y/Code-A0123456Y/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/chewd1/Downloads/MAC_M1_StartupSPASolution/A0123456Y/Code-A0123456Y/cmake-build-debug/src/spa/CMakeFiles/spa.dir
+/Users/chewd1/Downloads/MAC_M1_StartupSPASolution/A0123456Y/Code-A0123456Y/cmake-build-debug/src/spa/CMakeFiles/edit_cache.dir
+/Users/chewd1/Downloads/MAC_M1_StartupSPASolution/A0123456Y/Code-A0123456Y/cmake-build-debug/src/spa/CMakeFiles/rebuild_cache.dir
+/Users/chewd1/Downloads/MAC_M1_StartupSPASolution/A0123456Y/Code-A0123456Y/cmake-build-debug/src/autotester/CMakeFiles/autotester.dir
+/Users/chewd1/Downloads/MAC_M1_StartupSPASolution/A0123456Y/Code-A0123456Y/cmake-build-debug/src/autotester/CMakeFiles/edit_cache.dir
+/Users/chewd1/Downloads/MAC_M1_StartupSPASolution/A0123456Y/Code-A0123456Y/cmake-build-debug/src/autotester/CMakeFiles/rebuild_cache.dir
+/Users/chewd1/Downloads/MAC_M1_StartupSPASolution/A0123456Y/Code-A0123456Y/cmake-build-debug/src/unit_testing/CMakeFiles/unit_testing.dir
+/Users/chewd1/Downloads/MAC_M1_StartupSPASolution/A0123456Y/Code-A0123456Y/cmake-build-debug/src/unit_testing/CMakeFiles/edit_cache.dir
+/Users/chewd1/Downloads/MAC_M1_StartupSPASolution/A0123456Y/Code-A0123456Y/cmake-build-debug/src/unit_testing/CMakeFiles/rebuild_cache.dir

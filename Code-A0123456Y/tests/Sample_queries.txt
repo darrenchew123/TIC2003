@@ -1,0 +1,35 @@
+1 - Procedure
+procedure p;
+Select p
+echo
+5000
+2 - Variable
+variable v;
+Select v
+num1, index
+5000
+3 - Constant
+constant c;
+Select c
+none
+5000
+4 - Assignment
+assign a;
+Select a
+2
+5000
+5 - Print
+print pr;
+Select pr
+3, 4
+5000
+6 - Read
+read rd;
+Select rd
+1
+5000
+7 - Statement
+stmt s;
+Select s
+1, 2, 3, 4
+5000

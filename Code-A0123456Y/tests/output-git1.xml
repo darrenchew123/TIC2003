@@ -1,0 +1,102 @@
+<?xml-stylesheet type="text/xsl" href="analysis.xsl"?>
+<test_results>
+    <info>
+        <name>AutoTester</name><parsing_time_taken>1722.000000</parsing_time_taken>
+    </info>
+    <queries>
+        <query>
+            <id ReturnTuple="1" CondNum="1" RelNum="0" comment="Procedure">1</id><querystr><![CDATA[procedure p; Select p]]></querystr>
+            <stuans>CALL,IF,main,procedurE</stuans>
+            <correct>main,CALL,IF,procedurE</correct>
+            <time_taken>8.000000</time_taken>
+            <passed/>
+        </query>
+        <query>
+            <id ReturnTuple="1" CondNum="1" RelNum="0" comment="Variable">2</id><querystr><![CDATA[variable v; Select v;]]></querystr>
+            <stuans>AssiGn,CaLLg,Call,If,PRINT,PRINTb,PRinT,Print,ProCeduRE,Procedure,ReAd,Read,ReadA,THen,THen2,Then,WHilE4,WHile,WhilE,cALL,callcallcall,iF,ififif,linkAll,pRINT,pRINT2,pRINTb,prinT,proceduRE,rEAD,theN,wHILE,wHILE2,x</stuans>
+            <correct>ififif,callcallcall,AssiGn,CaLLg,Call,If,PRINT,PRINTb,PRinT,Print,ProCeduRE,Procedure,ReAd,Read,ReadA,THen,THen2,Then,WHilE4,WHile,WhilE,cALL,iF,pRINT,pRINT2,pRINTb,prinT,proceduRE,rEAD,theN,wHILE,wHILE2</correct>
+            <time_taken>10.000000</time_taken>
+            <failed>
+                <missing></missing>
+                <additional>linkAll,x</additional>
+                <summary>
+                    <expected>32</expected>
+                    <matched>32</matched>
+                    <missing>0</missing>
+                    <additional>2</additional>
+                </summary>
+            </failed>
+        </query>
+        <query>
+            <id ReturnTuple="1" CondNum="1" RelNum="0" comment="Constant">3</id><querystr><![CDATA[constant c; Select c;]]></querystr>
+            <stuans>10,2,1,1224,2212,20,30,510,0</stuans>
+            <correct>10,2,1,1224,2212,20,30,510,0</correct>
+            <time_taken>9.000000</time_taken>
+            <passed/>
+        </query>
+        <query>
+            <id ReturnTuple="1" CondNum="1" RelNum="0" comment="Assignment">4</id><querystr><![CDATA[assign a; Select a]]></querystr>
+            <stuans>1,2,7,10,12,13,16,19,20,24,29,33,34,35,36,37,38</stuans>
+            <correct>1,2,7,10,12,13,16,19,20,24,29,33,34,35,36,37</correct>
+            <time_taken>10.000000</time_taken>
+            <failed>
+                <missing></missing>
+                <additional>38</additional>
+                <summary>
+                    <expected>16</expected>
+                    <matched>16</matched>
+                    <missing>0</missing>
+                    <additional>1</additional>
+                </summary>
+            </failed>
+        </query>
+        <query>
+            <id ReturnTuple="1" CondNum="1" RelNum="0" comment="Read">5</id><querystr><![CDATA[read r; Select r]]></querystr>
+            <stuans>3,14,17,21,26</stuans>
+            <correct>3,14,17,21,26</correct>
+            <time_taken>8.000000</time_taken>
+            <passed/>
+        </query>
+        <query>
+            <id ReturnTuple="1" CondNum="1" RelNum="0" comment="Print">6</id><querystr><![CDATA[print p; Select p]]></querystr>
+            <stuans>4,15,22,31</stuans>
+            <correct>4,15,22,31</correct>
+            <time_taken>9.000000</time_taken>
+            <passed/>
+        </query>
+        <query>
+            <id ReturnTuple="1" CondNum="1" RelNum="0" comment="Statement">7</id><querystr><![CDATA[stmt s; Select s]]></querystr>
+            <stuans>1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38</stuans>
+            <correct>1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37</correct>
+            <time_taken>12.000000</time_taken>
+            <failed>
+                <missing></missing>
+                <additional>38</additional>
+                <summary>
+                    <expected>37</expected>
+                    <matched>37</matched>
+                    <missing>0</missing>
+                    <additional>1</additional>
+                </summary>
+            </failed>
+        </query>
+        <query>
+            <id ReturnTuple="1" CondNum="1" RelNum="0" comment="Call">8</id><querystr><![CDATA[call c; Select c;]]></querystr>
+            <stuans>5,8,27,28,32</stuans>
+            <correct>5,8,27,28,32</correct>
+            <time_taken>12.000000</time_taken>
+            <passed/>
+        </query>
+        <query>
+            <id ReturnTuple="1" Parent="1" SuchThat="1" CondNum="3" RelNum="1" comment="stmt such that Parent">9</id><querystr><![CDATA[stmt s; Select s such that Parent ("s", 7)]]></querystr>
+            <stuans>6</stuans>
+            <correct>6</correct>
+            <time_taken>12.000000</time_taken>
+            <passed/>
+        </query>
+        <query>
+            <id ReturnTuple="1" Parentstar="1" SuchThat="1" CondNum="3" RelNum="1" comment="stmt such that Parent">10</id><querystr><![CDATA[stmt x; Select s such that Parent* (4, "x")]]></querystr>
+            <timeout/>
+        </query>
+    </queries>
+</test_results>
