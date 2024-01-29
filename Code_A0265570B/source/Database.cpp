@@ -6,19 +6,46 @@ char* Database::errorMessage;
 
 // method to connect to the database and initialize tables in the database
 void Database::initialize() {
-	// open a database connection and store the pointer into dbConnection
-	sqlite3_open("database.db", &dbConnection);
+    // open a database connection and store the pointer into dbConnection
+    sqlite3_open("database.db", &dbConnection);
 
-	// drop the existing procedure table (if any)
-	string dropProcedureTableSQL = "DROP TABLE IF EXISTS procedures";
-	sqlite3_exec(dbConnection, dropProcedureTableSQL.c_str(), NULL, 0, &errorMessage);
+    // drop existing tables (if any)
+    const char* dropTablesSQL = "DROP TABLE IF EXISTS Variable;"
+                                "DROP TABLE IF EXISTS Statement;"
+                                "DROP TABLE IF EXISTS Constant;"
+                                "DROP TABLE IF EXISTS Procedure;";
+    sqlite3_exec(dbConnection, dropTablesSQL, NULL, 0, &errorMessage);
 
-	// create a procedure table
-	string createProcedureTableSQL = "CREATE TABLE procedures ( procedureName VARCHAR(255) PRIMARY KEY);";
-	sqlite3_exec(dbConnection, createProcedureTableSQL.c_str(), NULL, 0, &errorMessage);
+    // create Procedure table
+    const char* createProcedureTableSQL = "CREATE TABLE Procedure ("
+                                          "procedureName VARCHAR(255) PRIMARY KEY);";
+    sqlite3_exec(dbConnection, createProcedureTableSQL, NULL, 0, &errorMessage);
 
-	// initialize the result vector
-	dbResults = vector<vector<string>>();
+    // create Statement table
+    const char* createStatementTableSQL = "CREATE TABLE Statement ("
+                                          "codeLine INT,"
+                                          "procedureName VARCHAR(255),"
+                                          "statementType VARCHAR(50),"
+                                          "statementContent VARCHAR(255),"
+                                          "PRIMARY KEY (codeLine, procedureName),"
+                                          "FOREIGN KEY (procedureName) REFERENCES Procedure(procedureName));";
+    sqlite3_exec(dbConnection, createStatementTableSQL, NULL, 0, &errorMessage);
+
+    // create Variable table
+    const char* createVariableTableSQL = "CREATE TABLE Variable ("
+                                         "variableName INT PRIMARY KEY,"
+                                         "codeLine VARCHAR(50),"
+                                         "FOREIGN KEY (codeLine) REFERENCES Statement(codeLine));";
+    sqlite3_exec(dbConnection, createVariableTableSQL, NULL, 0, &errorMessage);
+
+    // create the Constant table
+    const char* createConstantTableSQL = "CREATE TABLE Constant ("
+                                         "constantId INT PRIMARY KEY,"
+                                         "constantValue INT);";
+    sqlite3_exec(dbConnection, createConstantTableSQL, NULL, 0, &errorMessage);
+
+    // initialize the result vector
+    dbResults = vector<vector<string>>();
 }
 
 // method to close the database connection
