@@ -45,7 +45,7 @@ void Database::initialize() {
     sqlite3_exec(dbConnection, createConstantTableSQL, NULL, 0, &errorMessage);
 
     // initialize the result vector
-    dbResults = vector<vector<string>>();
+    dbResults = vector<vector<string> >();
 }
 
 // method to close the database connection
@@ -55,26 +55,26 @@ void Database::close() {
 
 // method to insert a procedure into the database
 void Database::insertProcedure(string procedureName) {
-	string insertProcedureSQL = "INSERT INTO procedures ('procedureName') VALUES ('" + procedureName + "');";
-	sqlite3_exec(dbConnection, insertProcedureSQL.c_str(), NULL, 0, &errorMessage);
+    string insertProcedureSQL = "INSERT INTO Procedure ('procedureName') VALUES ('" + procedureName + "');";
+    sqlite3_exec(dbConnection, insertProcedureSQL.c_str(), NULL, 0, &errorMessage);
 }
 
 // method to get all the procedures from the database
 void Database::getProcedures(vector<string>& results){
-	// clear the existing results
-	dbResults.clear();
+    // clear the existing results
+    dbResults.clear();
 
-	// retrieve the procedures from the procedure table
-	// The callback method is only used when there are results to be returned.
-	string getProceduresSQL = "SELECT * FROM procedures;";
-	sqlite3_exec(dbConnection, getProceduresSQL.c_str(), callback, 0, &errorMessage);
+    // retrieve the procedures from the procedure table
+    // The callback method is only used when there are results to be returned.
+    string getProceduresSQL = "SELECT * FROM Procedure;";
+    sqlite3_exec(dbConnection, getProceduresSQL.c_str(), callback, 0, &errorMessage);
 
-	// postprocess the results from the database so that the output is just a vector of procedure names
-	for (vector<string> dbRow : dbResults) {
-		string result;
-		result = dbRow.at(0);
-		results.push_back(result);
-	}
+    // postprocess the results from the database so that the output is just a vector of procedure names
+    for (vector<string> dbRow : dbResults) {
+        string result;
+        result = dbRow.at(0);
+        results.push_back(result);
+    }
 }
 
 // callback method to put one row of results from the database into the dbResults vector
