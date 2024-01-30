@@ -5,18 +5,45 @@
 // using some highly simplified logic.
 // You should modify this method to complete the logic for handling all the required syntax.
 void SourceProcessor::process(string program) {
-	// initialize the database
-	Database::initialize();
+    // Initialize the database
+    Database::initialize();
 
-	// tokenize the program
-	Tokenizer tk;
-	vector<string> tokens;
-	tk.tokenize(program, tokens);
+    // Tokenize the program
+    Tokenizer tk;
+    vector<string> tokens;
+    tk.tokenize(program, tokens);
 
-	// This logic is highly simplified based on iteration 1 requirements and 
-	// the assumption that the programs are valid.
-	string procedureName = tokens.at(1);
+    string procedureName = tokens.at(1);
+    Database::insertProcedure(procedureName);
 
-	// insert the procedure into the database
-	Database::insertProcedure(procedureName);
+    int lineCount = 1; // Start at line 1
+
+    for (size_t i = 3; i < tokens.size(); i++) {
+        string token = tokens[i];
+
+        if (token == "\n") {
+            lineCount++; // Increment line count for each new line
+        }
+        else if (token == "read" || token == "print") {
+            string varName = tokens[++i];
+            Database::insertStatement(procedureName, token, varName, lineCount);
+            i++; // Skip the semicolon
+        } else if (token != "=" && token != ";") {
+            // Assume token is a variable name for an assign statement
+            string varName = token;
+            i += 2; // Skip '=' and move to the factor
+
+            string factor = tokens[i];
+            if (isdigit(factor[0])) {
+                // Factor is a constant
+                int constantValue = stoi(factor);
+                Database::insertConstant( constantValue);
+                Database::insertStatement(procedureName, "assign", varName + "=" + factor, lineCount);
+            } else {
+                // Factor is a variable
+                Database::insertStatement(procedureName, "assign", varName + "=" + factor, lineCount);
+            }
+            i++; // Skip the semicolon
+        }
+    }
 }

@@ -40,7 +40,6 @@ void Database::initialize() {
 
     // create the Constant table
     const char* createConstantTableSQL = "CREATE TABLE Constant ("
-                                         "constantId INT PRIMARY KEY,"
                                          "constantValue INT);";
     sqlite3_exec(dbConnection, createConstantTableSQL, NULL, 0, &errorMessage);
 
@@ -123,9 +122,8 @@ void Database::getVariables(vector<string>& results) {
 
 
 // method to insert a constant into the database
-void Database::insertConstant(int constantId, int constantValue) {
-    string insertConstantSQL = "INSERT INTO Constant (constantId, constantValue) VALUES ("
-                               + to_string(constantId) + ", "
+void Database::insertConstant(int constantValue) {
+    string insertConstantSQL = "INSERT INTO Constant (constantValue) VALUES ("
                                + to_string(constantValue) + ");";
     sqlite3_exec(dbConnection, insertConstantSQL.c_str(), NULL, 0, &errorMessage);
 }
@@ -138,7 +136,7 @@ void Database::getConstants(vector<string>& results) {
     sqlite3_exec(dbConnection, getConstantsSQL.c_str(), callback, 0, &errorMessage);
 
     for (vector<string> dbRow : dbResults) {
-        string constant = "Constant ID: " + dbRow.at(0) + ", Value: " + dbRow.at(1);
+        string constant = "Constant Value: " + dbRow.at(0);
         results.push_back(constant);
     }
 }

@@ -14,58 +14,62 @@ Tokenizer::~Tokenizer() {}
 // and punctuations (any other non-space characters, e.g., "=", ";", "{", "}").
 // it should be extended as needed to handle additional SIMPLE / PQL grammar rules.
 void Tokenizer::tokenize(string text, vector<string>& tokens) {
-	tokens.clear();
-	string token;
-	
-	unsigned int i = 0;
-	while (i < text.length()) {
-		char ch = text.at(i);
-		
-		if (isdigit(ch)) { // scan for a numeric sequence
-			token.push_back(ch);
-			i++;
+    tokens.clear();
+    string token;
 
-			while (i < text.length()) {
-				ch = text.at(i);
-				if (isdigit(ch)) {
-					token.push_back(ch);
-					i++;
-				}
-				else {
-					break;
-				}
-			}
+    unsigned int i = 0;
+    while (i < text.length()) {
+        char ch = text.at(i);
 
-			tokens.push_back(token);
-			token.clear();
-		}
-		else if (isalpha(ch)) { // scan for an alphanumeric sequence starting with a letter 
-			token.push_back(ch);
-			i++;
+        if (isdigit(ch)) { // scan for a numeric sequence
+            token.push_back(ch);
+            i++;
 
-			while (i < text.length()) {
-				ch = text.at(i);
-				if (isalpha(ch) || isdigit(ch)) {
-					token.push_back(ch);
-					i++;
-				}
-				else {
-					break;
-				}
-			}
+            while (i < text.length()) {
+                ch = text.at(i);
+                if (isdigit(ch)) {
+                    token.push_back(ch);
+                    i++;
+                }
+                else {
+                    break;
+                }
+            }
 
-			tokens.push_back(token);
-			token.clear();
-		}
-		else if (!isspace(ch)) { // scan for punctuations
-			token.push_back(ch);
-			i++;
+            tokens.push_back(token);
+            token.clear();
+        }
+        else if (isalpha(ch)) { // scan for an alphanumeric sequence starting with a letter
+            token.push_back(ch);
+            i++;
 
-			tokens.push_back(token);
-			token.clear();
-		}
-		else {
-			i++;
-		}
-	}
+            while (i < text.length()) {
+                ch = text.at(i);
+                if (isalpha(ch) || isdigit(ch)) {
+                    token.push_back(ch);
+                    i++;
+                }
+                else {
+                    break;
+                }
+            }
+
+            tokens.push_back(token);
+            token.clear();
+        }
+        else if (ch == '\n') { // handle line breaks
+            tokens.push_back("\n");
+            i++;
+        }
+        else if (!isspace(ch)) { // scan for punctuations
+            token.push_back(ch);
+            i++;
+
+            tokens.push_back(token);
+            token.clear();
+        }
+        else {
+            i++;
+        }
+    }
 }

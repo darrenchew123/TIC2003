@@ -30,7 +30,7 @@ public:
 
     static void getVariables(vector<string> &results);
 
-    static void insertConstant(int constantId, int constantValue);
+    static void insertConstant(int constantValue);
 
     static void getConstants(vector<string> &results);
 
