@@ -20,17 +20,50 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
 	vector<string> tokens;
 	tk.tokenize(query, tokens);
 
-	// check what type of synonym is being declared
-	string synonymType = tokens.at(0);
-
 	// create a vector for storing the results from database
 	vector<string> databaseResults;
 
-	// call the method in database to retrieve the results
-	// This logic is highly simplified based on iteration 1 requirements and 
-	// the assumption that the queries are valid.
-	if (synonymType == "procedure") {
-		Database::getProcedures(databaseResults);
+	//Process each token, check its type and get from its respective database
+	for (int i = 0; i < tokens.size(); i++) {
+
+		string synonymType = tokens[i];
+
+		//check for a procedure
+		if (synonymType == "procedure") {
+
+			Database::getProcedures(databaseResults);
+		}
+
+		//check for a read statement
+		else if (synonymType == "read") {
+
+			//Database::getProcedures(databaseResults);
+		}
+
+		//check for a call statement
+		else if (synonymType == "call") {
+
+			//Database::getProcedures(databaseResults);
+		}
+
+		//check for a print statement
+		else if (synonymType == "print") {
+
+			//Database::getProcedures(databaseResults);
+		}
+
+		//check for a constant
+		else if (synonymType == "constant") {
+
+			//Database::getProcedures(databaseResults);
+		}
+		
+		//check for variable
+
+		//check for assigment
+
+		//check for statement
+
 	}
 
 	// post process the results to fill in the output vector
