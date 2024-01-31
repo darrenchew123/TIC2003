@@ -13,37 +13,51 @@ void SourceProcessor::process(string program) {
     vector<string> tokens;
     tk.tokenize(program, tokens);
 
-    string procedureName = tokens.at(1);
-    Database::insertProcedure(procedureName);
+    int lineCount = 1;
+    bool inProcedure = false;
+    string procedureName;
 
-    int lineCount = 1; // Start at line 1
 
-    for (size_t i = 3; i < tokens.size(); i++) {
+
+    for (size_t i = 0; i < tokens.size(); i++) {
         string token = tokens[i];
 
-        if (token == "\n") {
-            lineCount++; // Increment line count for each new line
+        if (token == "procedure") {
+            inProcedure = true;
+            procedureName = tokens[++i];
+            Database::insertProcedure(procedureName);
         }
-        else if (token == "read" || token == "print") {
-            string varName = tokens[++i];
-            Database::insertStatement(procedureName, token, varName, lineCount);
-            i++; // Skip the semicolon
-        } else if (token != "=" && token != ";") {
-            // Assume token is a variable name for an assign statement
-            string varName = token;
-            i += 2; // Skip '=' and move to the factor
-
-            string factor = tokens[i];
-            if (isdigit(factor[0])) {
-                // Factor is a constant
-                int constantValue = stoi(factor);
-                Database::insertConstant( constantValue);
-                Database::insertStatement(procedureName, "assign", varName + "=" + factor, lineCount);
-            } else {
-                // Factor is a variable
-                Database::insertStatement(procedureName, "assign", varName + "=" + factor, lineCount);
+        else if (token == "}") {
+            inProcedure = false;
+        }
+        else if (inProcedure) {
+            if (token == "{") {
+                continue;
             }
-            i++; // Skip the semicolon
+            else if (token == "\n") {
+                lineCount++;
+            }
+            else if (token == "read" || token == "print") {
+                string varName = tokens[++i];
+                Database::insertStatement(procedureName, token, varName, lineCount);
+                i++; // Skip the semicolon
+            } else if (token != "=" && token != ";") {
+                // Assume token is a variable name for an assign statement
+                string varName = token;
+                i += 2; // Skip '=' and move to the factor
+
+                string factor = tokens[i];
+                if (isdigit(factor[0])) {
+                    // Factor is a constant
+                    int constantValue = stoi(factor);
+                    Database::insertConstant(constantValue);
+                    Database::insertStatement(procedureName, "assign", varName + "=" + factor, lineCount);
+                } else {
+                    // Factor is a variable
+                    Database::insertStatement(procedureName, "assign", varName + "=" + factor, lineCount);
+                }
+                i++; // Skip the semicolon
+            }
         }
     }
 }
