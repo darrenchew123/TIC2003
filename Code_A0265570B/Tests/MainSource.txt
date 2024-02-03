@@ -1,30 +1,28 @@
 procedure main {
-    read a;
-    read b;
-    call calculateGCD;
-    call printGCD;
+    read a; 
+    read b; 
+    call calculateGCD; 
+    call printGCD; 
 }
 
 procedure calculateGCD{
-
-    gcd = 0;
-
+    gcd = 0; 
     if a == 0 then {
-        gcd = b;
+        gcd = b; 
     } else if b == 0 then {
-        gcd = a;
+        gcd = a; 
     } else {
-        while a != b {
+        while (a != b) {
             if a > b then {
-                a = a - b;
+                a = a - b; 
             } else {
-                b = b - a;
+                b = b - a; 
             }
         }
-        gcd = a;
+        gcd = a; 
     }
 }
 
 procedure printGCD{
-    print gcd;
+    print gcd; 
 }
