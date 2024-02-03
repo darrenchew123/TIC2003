@@ -115,8 +115,8 @@ void Database::getVariables(vector<string>& results) {
     sqlite3_exec(dbConnection, getVariablesSQL.c_str(), callback, 0, &errorMessage);
 
     for (vector<string> dbRow : dbResults) {
-        string variable = "Variable Name: " + dbRow.at(0) + ", Code Line: " + dbRow.at(1);
-        results.push_back(variable);
+        string variableName = dbRow.at(0); // Only fetch the variable name
+        results.push_back(variableName);
     }
 }
 
