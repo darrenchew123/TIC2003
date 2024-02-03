@@ -12,18 +12,20 @@ void SourceProcessor::handleProcedure(const string& token, size_t& i, string& pr
 }
 
 void SourceProcessor::handleStatement(const string& procedureName, const string& token, size_t& i, int lineCount, vector<string>& tokens) {
-    if (token == "read" || token == "print") {
+    if (token == "read" || token == "print" || token == "call") {
         string varName = tokens[++i];
         Database::insertStatement(procedureName, token, varName, lineCount);
     } else {
         // Handle assignment
         handleAssignment(procedureName, token, i, lineCount, tokens);
     }
-    // Skip the semicolon
+
+    // Skip the semicolon, open curly bracket
     i++;
 }
 
 void SourceProcessor::handleAssignment(const string& procedureName, const string& varName, size_t& i, int lineCount, vector<string>& tokens) {
+    /*
     string factor = tokens[i+2]; // Assuming '=' is at i+1
     if (isdigit(factor[0])) {
         // Factor is a constant
@@ -34,8 +36,23 @@ void SourceProcessor::handleAssignment(const string& procedureName, const string
         // Factor is a variable
         Database::insertStatement(procedureName, "assign", varName + "=" + factor, lineCount);
     }
+    */
+
+    string statementContent = varName;
+    i++;
+
+    // create statementContent until token reaches ";"
+    while (tokens[i] != ";") {
+        statementContent += tokens[i];
+        i++;
+    }
+    
+    Database::insertStatement(procedureName, "assign", statementContent, lineCount);
+    i++;
+
     // Skip '=' and factor
-    i += 2;
+    //i += 2;
+    
 }
 
 // Main processing method
@@ -45,23 +62,66 @@ void SourceProcessor::process(string program) {
     vector<string> tokens;
     tk.tokenize(program, tokens);
 
-    int lineCount = 1;
+    int lineCount = 0; 
+
+    bool isProcedureLine = false;
     bool inProcedure = false;
+
+    bool inIfThenLine = false;
+    bool inIfThen = false;
+
+    bool inWhileLine = false;
+    bool inWhile = false;
+    
     string procedureName;
 
     for (size_t i = 0; i < tokens.size(); i++) {
         string token = tokens[i];
 
         if (token == "procedure") {
-            handleProcedure(tokens[++i], i, procedureName, inProcedure);
+            isProcedureLine = true;
+            handleProcedure(tokens[++i], i, procedureName, inProcedure); // inProcedure = true after calling fn
         }
         else if (token == "}") {
-            inProcedure = false;
+            if (inIfThen == false && inWhile == false)
+                inProcedure = false;
+            else if (inIfThen)
+                inIfThen = false;
+            else if (inWhile)
+                inWhile = false;
         }
         else if (inProcedure) {
-            if (token == "{") continue;
-            else if (token == "\n") incrementLineCount(lineCount);
-            else if (token == "read" || token == "print" || (token != "=" && token != ";")) {
+            
+            if (inIfThenLine) { //i++ until token "then" is reach}
+                if (token == "then") 
+                    inIfThenLine = false;
+                else 
+                    continue;
+            }
+
+            else if (token == "if") { //i++ until token "then" is reach}
+                inIfThenLine = true;
+                inIfThen = true;
+                continue;
+            }
+
+            else if (token == "{") continue;
+
+            else if (token == "\n") {
+                /*
+                if (isProcedureLine) { //to exclude procedure line in line counter
+                    isProcedureLine = false;
+                }
+                else {
+                    incrementLineCount(lineCount);
+                }
+                */
+                incrementLineCount(lineCount);
+            }
+            else if (token == "else") continue;
+            
+            //else if (token == "read" || token == "print" || token == "call" || (token != "=" && token != ";")) {
+            else if (token == "read" || token == "print" || token == "call" || (token != ";")) {
                 handleStatement(procedureName, token, i, lineCount, tokens);
             }
         }
