@@ -3,37 +3,31 @@ procedure p;
 Select p
 main, calculateGCD, printGCD
 5000
-
 2 - Variable
 variable v;
 Select v
 a, b, gcd
 5000
-
 3 - Constant
 constant c;
 Select c
 none
 5000
-
 4 - Assignment
 assign a;
 Select a
 5, 7, 9, 13, 15, 16
 5000
-
 5 - Print
 print pr;
 Select pr
 17
 5000
-
 6 - Read
 read rd;
 Select rd
 1, 2
 5000
-
 7 - Statement
 stmt s;
 Select s
