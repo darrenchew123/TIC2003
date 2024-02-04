@@ -2,6 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include<iostream>
 #include "Database.h"
 #include "Tokenizer.h"
 

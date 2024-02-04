@@ -36,7 +36,7 @@ void SourceProcessor::processAssignmentStatement(const string& procedureName, co
 void SourceProcessor::processInProcedure(const string& token, const string& procedureName, int& i, int& lineCount, const vector<string>& tokens) {
     if (token == "{") {
         return;
-    } else if (token == "\n") {
+    } else if (token == "\n" && tokens.at(i-1)!="\n") {
         lineCount++;
     } else if (token == "read" || token == "print") {
         processOtherStatement(procedureName, token, i, lineCount, tokens);
@@ -53,8 +53,11 @@ void SourceProcessor::process(string &program) {
     Tokenizer tk;
     vector<string> tokens;
     tk.tokenize(program, tokens);
+    for (const auto& token : tokens) {
+        std::cout <<"tokens "<< token << endl;
+    }
 
-    int lineCount = 1;
+    int lineCount = 0;
     bool inProcedure = false;
     string procedureName;
 
