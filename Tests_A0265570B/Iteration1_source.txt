@@ -1,0 +1,9 @@
+procedure trackTemperature {
+    read currentTemp;
+    recordedTemp = currentTemp;
+    defaultSetting = 5;
+
+    print currentTemp;
+    print recordedTemp;
+    print defaultSetting;
+}
