@@ -1,5 +1,4 @@
 #include "Tokenizer.h"
-#include <iostream>
 
 // constructor
 Tokenizer::Tokenizer() {}

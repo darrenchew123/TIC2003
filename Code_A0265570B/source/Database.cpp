@@ -50,18 +50,12 @@ void Database::initialize() {
 }
 
 void Database::clear() {
-    // SQL statement to delete all records from each table
+    // Delete all records from each table
     const char* clearTablesSQL = "DELETE FROM Variable;"
                                  "DELETE FROM Statement;"
                                  "DELETE FROM Constant;"
                                  "DELETE FROM Procedure;";
-
-    // Execute the SQL statement
     sqlite3_exec(dbConnection, clearTablesSQL, NULL, 0, &errorMessage);
-
-    // Optionally, reset the autoincrement counters if your tables use them
-    const char* resetAutoincrementSQL = "DELETE FROM sqlite_sequence WHERE name IN ('Variable', 'Statement', 'Constant', 'Procedure');";
-    sqlite3_exec(dbConnection, resetAutoincrementSQL, NULL, 0, &errorMessage);
 }
 
 // method to close the database connection
@@ -93,6 +87,7 @@ void Database::getProcedures(vector<string>& results){
     }
 }
 
+// method to get insert statement into the database
 void Database::insertStatement(string procedureName, string statementType, string statementContent, int codeLine) {
     string insertStatementSQL = "INSERT INTO Statement (codeLine, procedureName, statementType, statementContent) VALUES ("
                                 + to_string(codeLine) + ", '"
@@ -102,9 +97,9 @@ void Database::insertStatement(string procedureName, string statementType, strin
     sqlite3_exec(dbConnection, insertStatementSQL.c_str(), NULL, 0, &errorMessage);
 }
 
-// method to get all the statements from the database
+// method to get all the statements line from the database
 void Database::getStatements(vector<string>& results) {
-    dbResults.clear();  // Clear existing results
+    dbResults.clear();
 
     string getStatementsSQL = "SELECT DISTINCT codeLine FROM Statement;";
     sqlite3_exec(dbConnection, getStatementsSQL.c_str(), callback, 0, &errorMessage);
@@ -115,8 +110,9 @@ void Database::getStatements(vector<string>& results) {
     }
 }
 
+// method to get all the statements line from the database by statement type eg. print, push
 void Database::getStatementType(const string &statementType, vector<string>& results) {
-    dbResults.clear();  // Clear existing results
+    dbResults.clear();
     string getStatementsSQL = "SELECT codeLine FROM Statement WHERE statementType ='"
                                + statementType + "';";
     sqlite3_exec(dbConnection, getStatementsSQL.c_str(), callback, 0, &errorMessage);
@@ -137,17 +133,16 @@ void Database::insertVariable(string variableName, int codeLine) {
 
 // method to get all the variables from the database
 void Database::getVariables(vector<string>& results) {
-    dbResults.clear();  // Clear existing results
+    dbResults.clear();
 
     string getVariablesSQL = "SELECT DISTINCT variableName FROM Variable;";
     sqlite3_exec(dbConnection, getVariablesSQL.c_str(), callback, 0, &errorMessage);
 
     for (vector<string> dbRow : dbResults) {
-        string variableName = dbRow.at(0); // Only fetch the variable name
+        string variableName = dbRow.at(0);
         results.push_back(variableName);
     }
 }
-
 
 // method to insert a constant into the database
 void Database::insertConstant(int codeLine, int constantValue) {
@@ -160,7 +155,7 @@ void Database::insertConstant(int codeLine, int constantValue) {
 
 // method to get all the constants from the database
 void Database::getConstants(vector<string>& results) {
-    dbResults.clear();  // Clear existing results
+    dbResults.clear();  
 
     string getConstantsSQL = "SELECT codeLine FROM Constant;";
     sqlite3_exec(dbConnection, getConstantsSQL.c_str(), callback, 0, &errorMessage);
@@ -170,7 +165,6 @@ void Database::getConstants(vector<string>& results) {
         results.push_back(constant);
     }
 }
-
 
 
 // callback method to put one row of results from the database into the dbResults vector

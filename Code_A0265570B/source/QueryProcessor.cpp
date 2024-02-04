@@ -1,16 +1,17 @@
 #include "QueryProcessor.h"
-#include "Tokenizer.h"
 
 QueryProcessor::QueryProcessor() {}
 
 QueryProcessor::~QueryProcessor() {}
 
+//Validate token type
 bool QueryProcessor::typeValidator(const string &token){
     if(token == "procedure" || token == "variable" || token == "constant" || token == "assign" || token == "print" || token == "read" || token == "stmt")
         return true;
     return false;
 }
 
+//Process query file to store declared objects that will be used fir validation by processSelect
 void QueryProcessor::processObjects(const vector<string>& tokens, unordered_map<string, string> &declaredObjects) {
     //Process declared object eg. variable v;,constant c;
     for (int i = 0; i < tokens.size(); i++) {
@@ -23,6 +24,7 @@ void QueryProcessor::processObjects(const vector<string>& tokens, unordered_map<
     }
 }
 
+//Process query file to store into selectObjects to be processed by statements
 void QueryProcessor::processSelect(const vector<string>& tokens, unordered_map<string, string> declaredObjects, vector<pair<string, string>>& selectObjects) {
     for (int i = 0; i < tokens.size(); ++i) {
         if (tokens[i] == "Select") {
@@ -38,6 +40,7 @@ void QueryProcessor::processSelect(const vector<string>& tokens, unordered_map<s
     }
 }
 
+//Start process to parse query
 void QueryProcessor::parser(const vector<string>& tokens, vector<pair<string, string>>& selectObjects) {
     unordered_map<string, string> declaredObjects;
 
@@ -45,6 +48,7 @@ void QueryProcessor::parser(const vector<string>& tokens, vector<pair<string, st
     processSelect(tokens,declaredObjects,selectObjects);
 }
 
+//Evalutate query to get result from DB
 void QueryProcessor::evaluate(string query, vector<string>& output) {
 	output.clear();
 
