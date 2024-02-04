@@ -9,14 +9,11 @@ void SourceProcessor::processProcedure(bool &inProcedure, string &procedureName,
 
 //Process constant logic + assignmnet
 void SourceProcessor::processConstantAssignment(const string& procedureName, const string& varName, const string& constantString, int& lineCount) {
+    Database::insertVariable(varName, lineCount);
+    Database::insertStatement(procedureName, "assign", varName + "=" + constantString, lineCount);
     if (isdigit(constantString[0])) {
         int constantValue = stoi(constantString);
-        Database::insertConstant(lineCount,constantValue);
-        Database::insertVariable(varName,lineCount);
-        Database::insertStatement(procedureName, "assign", varName + "=" + constantString, lineCount);
-    } else {
-        Database::insertVariable(varName,lineCount);
-        Database::insertStatement(procedureName, "assign", varName + "=" + constantString, lineCount);
+        Database::insertConstant(lineCount, constantValue);
     }
 }
 
