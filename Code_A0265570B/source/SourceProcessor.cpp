@@ -15,13 +15,15 @@ void SourceProcessor::processConstantAssignment(const string& procedureName, con
         Database::insertVariable(varName,lineCount);
         Database::insertStatement(procedureName, "assign", varName + "=" + constantString, lineCount);
     } else {
+        Database::insertVariable(varName,lineCount);
         Database::insertStatement(procedureName, "assign", varName + "=" + constantString, lineCount);
     }
 }
 
-//Process other statement which
-void SourceProcessor::processOtherStatement(const string& procedureName, const string& token, int& i, int& lineCount, const vector<string>& tokens) {
+//Process read print statement which
+void SourceProcessor::processReadPrintStatement(const string& procedureName, const string& token, int& i, int& lineCount, const vector<string>& tokens) {
     string varName = tokens[++i];
+    cout << "varName for print "<< varName<<  "code line" << lineCount<<endl;
     Database::insertVariable(varName,lineCount);
     Database::insertStatement(procedureName, token, varName, lineCount);
     //Skip the semicolon
@@ -46,7 +48,7 @@ void SourceProcessor::processInProcedure(const string& token, const string& proc
     }else if (token == "\n") {
         lineCount++;
     } else if (token == "read" || token == "print") {
-        processOtherStatement(procedureName, token, i, lineCount, tokens);
+        processReadPrintStatement(procedureName, token, i, lineCount, tokens);
     } else if (token != "=" && token != ";") {
         processAssignmentStatement(procedureName, token, i, lineCount, tokens);
     }
@@ -61,6 +63,10 @@ void SourceProcessor::process(string &program) {
     Tokenizer tk;
     vector<string> tokens;
     tk.tokenize(program, tokens);
+
+    for(auto token : tokens){
+        cout <<"Token :"<<token <<endl;
+    }
 
     int lineCount = 0;
     bool inProcedure = false;

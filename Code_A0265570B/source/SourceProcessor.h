@@ -14,7 +14,7 @@ private:
 
     void processConstantAssignment(const string& procedureName, const string& varName, const string& constantString, int& lineCount);
 
-    void processOtherStatement(const string& procedureName, const string& token, int& i, int& lineCount, const vector<string>& tokens);
+    void processReadPrintStatement(const string& procedureName, const string& token, int& i, int& lineCount, const vector<string>& tokens);
 
     void processAssignmentStatement(const string& procedureName, const string& token, int& i, int& lineCount, const vector<string>& tokens);
 
