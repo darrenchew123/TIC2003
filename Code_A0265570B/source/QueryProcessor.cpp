@@ -1,72 +1,88 @@
 #include "QueryProcessor.h"
 #include "Tokenizer.h"
 
-// constructor
 QueryProcessor::QueryProcessor() {}
 
-// destructor
 QueryProcessor::~QueryProcessor() {}
 
-// method to evaluate a query
-// This method currently only handles queries for getting all the procedure names,
-// using some highly simplified logic.
-// You should modify this method to complete the logic for handling all required queries.
+bool QueryProcessor::typeValidator(const string &token){
+    if(token == "procedure" || token == "variable" || token == "constant" || token == "assign" || token == "print" || token == "read" || token == "stmt")
+        return true;
+    return false;
+}
+
+void QueryProcessor::processObjects(const vector<string>& tokens, unordered_map<string, string> &declaredObjects) {
+    //Process declared object eg. variable v;,constant c;
+    for (int i = 0; i < tokens.size(); i++) {
+        if (typeValidator(tokens[i])) {
+            if (i + 1 < tokens.size()) {
+                declaredObjects[tokens[i + 1]] = tokens[i];
+                i += 1;
+            }
+        }
+    }
+}
+
+void QueryProcessor::processSelect(const vector<string>& tokens, unordered_map<string, string> declaredObjects, vector<pair<string, string>>& selectObjects) {
+    for (int i = 0; i < tokens.size(); ++i) {
+        if (tokens[i] == "Select") {
+            if (i + 1 < tokens.size()) {
+                string selectIdentifier = tokens[i + 1];
+                if (declaredObjects.find(selectIdentifier) != declaredObjects.end()) {
+                    selectObjects.push_back(make_pair(declaredObjects[selectIdentifier], selectIdentifier));
+                } else {
+                    throw runtime_error("Error: Identifier '" + selectIdentifier + "' not declared.");
+                }
+            }
+        }
+    }
+}
+
+void QueryProcessor::parser(const vector<string>& tokens, vector<pair<string, string>>& selectObjects) {
+    unordered_map<string, string> declaredObjects;
+
+    processObjects(tokens,declaredObjects);
+    processSelect(tokens,declaredObjects,selectObjects);
+}
+
 void QueryProcessor::evaluate(string query, vector<string>& output) {
-	// clear the output vector
 	output.clear();
 
-	// tokenize the query
-	Tokenizer tk;
+    vector<string> databaseResults;
+    vector<pair<string, string>> selectObjects;
+    Tokenizer tk;
 	vector<string> tokens;
 	tk.tokenize(query, tokens);
 
-	// create a vector for storing the results from database
-	vector<string> databaseResults;
+    parser(tokens,selectObjects);
 
-	//Process each token, check its type and get from its respective database
-	for (int i = 0; i < tokens.size(); i++) {
 
-		string synonymType = tokens[i];
+	for (int i = 0; i < selectObjects.size(); i++) {
 
-		//check for a procedure
-		if (synonymType == "procedure") {
+		string selectType = selectObjects[i].first;
 
+		if (selectType == "procedure") {
 			Database::getProcedures(databaseResults);
 		}
-
-		//check for a read statement
-		else if (synonymType == "read") {
-
-			//Database::getProcedures(databaseResults);
-		}
-
-		//check for a call statement
-		else if (synonymType == "call") {
-
-			//Database::getProcedures(databaseResults);
-		}
-
-		//check for a print statement
-		else if (synonymType == "print") {
-
-			//Database::getProcedures(databaseResults);
-		}
-
-		//check for a constant
-		else if (synonymType == "constant") {
-
-			//Database::getProcedures(databaseResults);
-		}
-		
-		//check for variable
-
-		//check for assigment
-
-		//check for statement
-
+        else if (selectType == "variable") {
+            Database::getVariables(databaseResults);
+        }
+//        else if (selectType == "constant") {
+//            Database::getConstant(databaseResults);
+//        }
+//		else if (selectType == "assign") {
+//			Database::getAssignments(databaseResults);
+//		}
+//		else if (selectType == "print") {
+//			Database::getPrint(databaseResults);
+//		}
+//        else if (selectType == "read") {
+//            Database::getRead(databaseResults);
+//        }
+        else if (selectType == "stmt") {
+            Database::getStatements(databaseResults);
+        }
 	}
-
-	// post process the results to fill in the output vector
 	for (string databaseResult : databaseResults) {
 		output.push_back(databaseResult);
 	}
