@@ -13,6 +13,8 @@ public:
     // method to connect to the database and initialize tables in the database
     static void initialize();
 
+    static void clear();
+
     // method to close the database connection
     static void close();
 
@@ -26,11 +28,13 @@ public:
 
     static void getStatements(vector<string> &results);
 
+    static void getStatementType(const string &statementType, vector<string>& results);
+
     static void insertVariable(string variableName, int codeLine);
 
     static void getVariables(vector<string> &results);
 
-    static void insertConstant(int constantValue);
+    static void insertConstant(int codeLine, int constantValue);
 
     static void getConstants(vector<string> &results);
 

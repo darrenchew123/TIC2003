@@ -67,18 +67,18 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
         else if (selectType == "variable") {
             Database::getVariables(databaseResults);
         }
-//        else if (selectType == "constant") {
-//            Database::getConstant(databaseResults);
-//        }
-//		else if (selectType == "assign") {
-//			Database::getAssignments(databaseResults);
-//		}
-//		else if (selectType == "print") {
-//			Database::getPrint(databaseResults);
-//		}
-//        else if (selectType == "read") {
-//            Database::getRead(databaseResults);
-//        }
+        else if (selectType == "constant") {
+            Database::getConstants(databaseResults);
+        }
+		else if (selectType == "assign") {
+			Database::getStatementType(selectType,databaseResults);
+		}
+		else if (selectType == "print") {
+			Database::getStatementType(selectType,databaseResults);
+		}
+        else if (selectType == "read") {
+            Database::getStatementType(selectType,databaseResults);
+        }
         else if (selectType == "stmt") {
             Database::getStatements(databaseResults);
         }

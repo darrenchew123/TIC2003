@@ -40,11 +40,28 @@ void Database::initialize() {
 
     // create the Constant table
     const char* createConstantTableSQL = "CREATE TABLE Constant ("
-                                         "constantValue INT);";
+                                         "codeLine INT,"
+                                         "constantValue INT);"
+                                         "PRIMARY KEY (codeLine, constantValue),";
     sqlite3_exec(dbConnection, createConstantTableSQL, NULL, 0, &errorMessage);
 
     // initialize the result vector
     dbResults = vector<vector<string> >();
+}
+
+void Database::clear() {
+    // SQL statement to delete all records from each table
+    const char* clearTablesSQL = "DELETE FROM Variable;"
+                                 "DELETE FROM Statement;"
+                                 "DELETE FROM Constant;"
+                                 "DELETE FROM Procedure;";
+
+    // Execute the SQL statement
+    sqlite3_exec(dbConnection, clearTablesSQL, NULL, 0, &errorMessage);
+
+    // Optionally, reset the autoincrement counters if your tables use them
+    const char* resetAutoincrementSQL = "DELETE FROM sqlite_sequence WHERE name IN ('Variable', 'Statement', 'Constant', 'Procedure');";
+    sqlite3_exec(dbConnection, resetAutoincrementSQL, NULL, 0, &errorMessage);
 }
 
 // method to close the database connection
@@ -89,13 +106,24 @@ void Database::insertStatement(string procedureName, string statementType, strin
 void Database::getStatements(vector<string>& results) {
     dbResults.clear();  // Clear existing results
 
-    string getStatementsSQL = "SELECT * FROM Statement;";
+    string getStatementsSQL = "SELECT DISTINCT codeLine FROM Statement;";
     sqlite3_exec(dbConnection, getStatementsSQL.c_str(), callback, 0, &errorMessage);
 
     for (vector<string> dbRow : dbResults) {
-        string statement = "Code Line: " + dbRow.at(0) + ", Procedure: " + dbRow.at(1)
-                           + ", Type: " + dbRow.at(2) + ", Content: " + dbRow.at(3);
-        results.push_back(statement);
+        string statementLine = dbRow.at(0);
+        results.push_back(statementLine);
+    }
+}
+
+void Database::getStatementType(const string &statementType, vector<string>& results) {
+    dbResults.clear();  // Clear existing results
+    string getStatementsSQL = "SELECT codeLine FROM Statement WHERE statementType ='"
+                               + statementType + "';";
+    sqlite3_exec(dbConnection, getStatementsSQL.c_str(), callback, 0, &errorMessage);
+
+    for (vector<string> dbRow : dbResults) {
+        string statementLine = dbRow.at(0);
+        results.push_back(statementLine);
     }
 }
 
@@ -111,7 +139,7 @@ void Database::insertVariable(string variableName, int codeLine) {
 void Database::getVariables(vector<string>& results) {
     dbResults.clear();  // Clear existing results
 
-    string getVariablesSQL = "SELECT * FROM Variable;";
+    string getVariablesSQL = "SELECT DISTINCT variableName FROM Variable;";
     sqlite3_exec(dbConnection, getVariablesSQL.c_str(), callback, 0, &errorMessage);
 
     for (vector<string> dbRow : dbResults) {
@@ -122,9 +150,11 @@ void Database::getVariables(vector<string>& results) {
 
 
 // method to insert a constant into the database
-void Database::insertConstant(int constantValue) {
-    string insertConstantSQL = "INSERT INTO Constant (constantValue) VALUES ("
+void Database::insertConstant(int codeLine, int constantValue) {
+    string insertConstantSQL = "INSERT INTO Constant (codeLine,constantValue) VALUES ("
+                               + to_string(codeLine) + ","
                                + to_string(constantValue) + ");";
+
     sqlite3_exec(dbConnection, insertConstantSQL.c_str(), NULL, 0, &errorMessage);
 }
 
@@ -132,11 +162,11 @@ void Database::insertConstant(int constantValue) {
 void Database::getConstants(vector<string>& results) {
     dbResults.clear();  // Clear existing results
 
-    string getConstantsSQL = "SELECT * FROM Constant;";
+    string getConstantsSQL = "SELECT codeLine FROM Constant;";
     sqlite3_exec(dbConnection, getConstantsSQL.c_str(), callback, 0, &errorMessage);
 
     for (vector<string> dbRow : dbResults) {
-        string constant = "Constant Value: " + dbRow.at(0);
+        string constant = dbRow.at(0);
         results.push_back(constant);
     }
 }
