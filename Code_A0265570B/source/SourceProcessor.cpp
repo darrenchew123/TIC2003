@@ -2,6 +2,7 @@
 
 //Process logic for procedure
 
+// Check if it's integer to process constant
 bool SourceProcessor::isInteger(const string& intString) {
     if (intString.empty()) return false;
     int startIndex = 0;
@@ -9,12 +10,14 @@ bool SourceProcessor::isInteger(const string& intString) {
     return all_of(intString.begin() + startIndex, intString.end(), ::isdigit);
 }
 
+// Process procedure
 void SourceProcessor::processProcedure(bool &inProcedure, string &procedureName, int &i, const vector<string> &tokens){
     inProcedure = true;
     procedureName = tokens[++i];
     Database::insertProcedure(procedureName);
 }
 
+// Process statement and insert into statement table
 void SourceProcessor::processStatement(const string& procedureName, const string& token, int& i, int& lineCount, const vector<string>& tokens, stack<string>& statementTypes) {
     if(statementTypes.size() == 0) return;
     string statementContent;
@@ -26,17 +29,19 @@ void SourceProcessor::processStatement(const string& procedureName, const string
     Database::insertStatement(procedureName, statementTypes.top(), statementContent, lineCount);
     statementTypes.pop();
 }
+
+// Process variable and insert into variable table
 void SourceProcessor::processVariable(const string& varName, const int& lineCount){
     Database::insertVariable(varName,lineCount);
 }
 
-//Process constant logic
+//Process constant and insert into constant table
 void SourceProcessor::processConstant(const string& constantString, int& lineCount) {
     int constantValue = stoi(constantString);
     Database::insertConstant(lineCount, constantValue);
 }
 
-//Process read print statement which
+//Process read print assignment logic and add into statement type
 void SourceProcessor::processReadPrintAssignment(const string& token, stack<string>& statementTypes) {
     if(token == "=") statementTypes.push("assign");
     else statementTypes.push(token);
