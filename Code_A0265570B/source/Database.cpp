@@ -41,8 +41,9 @@ void Database::initialize() {
     // create the Constant table
     const char* createConstantTableSQL = "CREATE TABLE Constant ("
                                          "codeLine INT,"
-                                         "constantValue INT);"
-                                         "PRIMARY KEY (codeLine, constantValue),";
+                                         "constantValue INT, "
+                                         "PRIMARY KEY (codeLine, constantValue), "
+                                         "FOREIGN KEY (codeLine) REFERENCES Statement(codeLine))";
     sqlite3_exec(dbConnection, createConstantTableSQL, NULL, 0, &errorMessage);
 
     // initialize the result vector
