@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include<iostream>
+#include<stack>
 #include "Database.h"
 #include "Tokenizer.h"
 
@@ -10,17 +11,21 @@ using namespace std;
 
 class SourceProcessor {
 private:
+    bool isInteger(const string& intString);
+
     void processProcedure(bool &inProcedure, string &procedureName, int &i, const vector<string> &tokens);
 
-    void processConstantAssignment(const string& procedureName, const string& varName, const string& constantString, int& lineCount);
+    void processInProcedure(const string& token, const string& procedureName, int& i, int& lineCount, const vector<string>& tokens, stack<string>& statementTypes);
 
-    void processReadPrintStatement(const string& procedureName, const string& token, int& i, int& lineCount, const vector<string>& tokens);
+    void processVariable(const string& varName, const int& lineCount);
 
-    void processAssignmentStatement(const string& procedureName, const string& token, int& i, int& lineCount, const vector<string>& tokens);
+    void processStatement(const string& procedureName, const string& token, int& i, int& lineCount, const vector<string>& tokens, stack<string>& statementTypes);
 
-    void processInProcedure(const string& token, const string& procedureName, int& i, int& lineCount, const vector<string>& tokens);
+    void processConstant(const string& constantString, int& lineCount);
+
+    void processReadPrintAssignment(const string& token, stack<string>& statementTypes);
 
 public:
     void process(string& process);
 
-    };
+};
