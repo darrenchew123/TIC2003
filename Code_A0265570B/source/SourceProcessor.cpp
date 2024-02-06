@@ -23,7 +23,7 @@ void SourceProcessor::processStatement(const string& procedureName, const string
     string statementContent;
     int counter = i - 1;
     while(counter>=0 && tokens[counter]!= "\n"){
-        statementContent += tokens[counter];
+        statementContent = tokens[counter] + " " + statementContent;
         counter--;
     }
     Database::insertStatement(procedureName, statementTypes.top(), statementContent, lineCount);
