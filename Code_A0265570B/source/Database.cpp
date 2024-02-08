@@ -33,8 +33,8 @@ void Database::initialize() {
 
     // create Variable table
     const char* createVariableTableSQL = "CREATE TABLE Variable ("
-                                         "variableName INT PRIMARY KEY,"
-                                         "codeLine VARCHAR(50),"
+                                         "variableName VARCHAR(255) PRIMARY KEY,"
+                                         "codeLine INT,"
                                          "FOREIGN KEY (codeLine) REFERENCES Statement(codeLine));";
     sqlite3_exec(dbConnection, createVariableTableSQL, NULL, 0, &errorMessage);
 
