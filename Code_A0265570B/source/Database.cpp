@@ -158,7 +158,7 @@ void Database::insertConstant(int codeLine, int constantValue) {
 void Database::getConstants(vector<string>& results) {
     dbResults.clear();  
 
-    string getConstantsSQL = "SELECT codeLine FROM Constant;";
+    string getConstantsSQL = "SELECT constantValue FROM Constant;";
     sqlite3_exec(dbConnection, getConstantsSQL.c_str(), callback, 0, &errorMessage);
 
     for (vector<string> dbRow : dbResults) {
