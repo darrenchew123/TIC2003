@@ -10,7 +10,12 @@ void Database::initialize() {
     sqlite3_open("database.db", &dbConnection);
 
     // drop existing tables (if any)
-    const char* dropTablesSQL = "DROP TABLE IF EXISTS Variable;"
+    const char* dropTablesSQL = "DROP TABLE IF EXISTS Uses;"
+                                "DROP TABLE IF EXISTS Modifies;"
+                                "DROP TABLE IF EXISTS Pattern;"
+                                "DROP TABLE IF EXISTS ParentChildRelation;"
+                                "DROP TABLE IF EXISTS NextRelation;"
+                                "DROP TABLE IF EXISTS Variable;"
                                 "DROP TABLE IF EXISTS Statement;"
                                 "DROP TABLE IF EXISTS Constant;"
                                 "DROP TABLE IF EXISTS Procedure;";
@@ -23,41 +28,88 @@ void Database::initialize() {
 
     // create Statement table
     const char* createStatementTableSQL = "CREATE TABLE Statement ("
-                                          "codeLine INT,"
+                                          "codeLine INT PRIMARY KEY,"
                                           "procedureName VARCHAR(255),"
                                           "statementType VARCHAR(50),"
                                           "statementContent VARCHAR(255),"
-                                          "PRIMARY KEY (codeLine, procedureName),"
                                           "FOREIGN KEY (procedureName) REFERENCES Procedure(procedureName));";
     sqlite3_exec(dbConnection, createStatementTableSQL, NULL, 0, &errorMessage);
 
     // create Variable table
     const char* createVariableTableSQL = "CREATE TABLE Variable ("
                                          "variableName VARCHAR(255) PRIMARY KEY,"
-                                         "codeLine INT,"
-                                         "FOREIGN KEY (codeLine) REFERENCES Statement(codeLine));";
+                                         "statementCodeLine INT,"
+                                         "procedureName VARCHAR(255),"
+                                         "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine),"
+                                         "FOREIGN KEY (procedureName) REFERENCES Procedure(procedureName));";
     sqlite3_exec(dbConnection, createVariableTableSQL, NULL, 0, &errorMessage);
 
-    // create the Constant table
+    // create Constant table
     const char* createConstantTableSQL = "CREATE TABLE Constant ("
-                                         "codeLine INT,"
+                                         "statementCodeLine INT,"
                                          "constantValue INT, "
-                                         "PRIMARY KEY (codeLine, constantValue), "
-                                         "FOREIGN KEY (codeLine) REFERENCES Statement(codeLine))";
+                                         "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine));";
     sqlite3_exec(dbConnection, createConstantTableSQL, NULL, 0, &errorMessage);
 
+    // create ParentChildRelation table
+    const char* createParentChildRelationTableSQL = "CREATE TABLE ParentChildRelation ("
+                                                    "parentStatementCodeLine INT,"
+                                                    "childStatementCodeLine INT,"
+                                                    "PRIMARY KEY (parentStatementCodeLine, childStatementCodeLine),"
+                                                    "FOREIGN KEY (parentStatementCodeLine) REFERENCES Statement(codeLine),"
+                                                    "FOREIGN KEY (childStatementCodeLine) REFERENCES Statement(codeLine));";
+    sqlite3_exec(dbConnection, createParentChildRelationTableSQL, NULL, 0, &errorMessage);
+
+    // create NextRelation table
+    const char* createNextRelationTableSQL = "CREATE TABLE NextRelation ("
+                                             "currentStatementCodeLine INT,"
+                                             "nextStatementCodeLine INT,"
+                                             "FOREIGN KEY (currentStatementCodeLine) REFERENCES Statement(codeLine),"
+                                             "FOREIGN KEY (nextStatementCodeLine) REFERENCES Statement(codeLine));";
+    sqlite3_exec(dbConnection, createNextRelationTableSQL, NULL, 0, &errorMessage);
+
+    // create Uses table
+    const char* createUsesTableSQL = "CREATE TABLE Uses ("
+                                     "statementCodeLine INT,"
+                                     "variableName VARCHAR(255),"
+                                     "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine),"
+                                     "FOREIGN KEY (variableName) REFERENCES Variable(variableName));";
+    sqlite3_exec(dbConnection, createUsesTableSQL, NULL, 0, &errorMessage);
+
+    // create Modifies table
+    const char* createModifiesTableSQL = "CREATE TABLE Modifies ("
+                                         "statementCodeLine INT,"
+                                         "variableName VARCHAR(255),"
+                                         "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine),"
+                                         "FOREIGN KEY (variableName) REFERENCES Variable(variableName));";
+    sqlite3_exec(dbConnection, createModifiesTableSQL, NULL, 0, &errorMessage);
+
+    // create Pattern table
+    const char* createPatternTableSQL = "CREATE TABLE Pattern ("
+                                        "statementCodeLine INT,"
+                                        "LHSExpression VARCHAR(255),"
+                                        "RHSExpression VARCHAR(255),"
+                                        "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine));";
+    sqlite3_exec(dbConnection, createPatternTableSQL, NULL, 0, &errorMessage);
+
     // initialize the result vector
-    dbResults = vector<vector<string> >();
+    dbResults = vector<vector<string>>();
 }
 
 void Database::clear() {
     // Delete all records from each table
-    const char* clearTablesSQL = "DELETE FROM Variable;"
+    const char* clearTablesSQL = "DELETE FROM Uses;"
+                                 "DELETE FROM Modifies;"
+                                 "DELETE FROM Pattern;"
+                                 "DELETE FROM ParentChildRelation;"
+                                 "DELETE FROM NextRelation;"
+                                 "DELETE FROM Variable;"
                                  "DELETE FROM Statement;"
                                  "DELETE FROM Constant;"
                                  "DELETE FROM Procedure;";
     sqlite3_exec(dbConnection, clearTablesSQL, NULL, 0, &errorMessage);
 }
+
 
 // method to close the database connection
 void Database::close() {
@@ -115,7 +167,7 @@ void Database::getStatements(vector<string>& results) {
 void Database::getStatementType(const string &statementType, vector<string>& results) {
     dbResults.clear();
     string getStatementsSQL = "SELECT codeLine FROM Statement WHERE statementType ='"
-                               + statementType + "';";
+                              + statementType + "';";
     sqlite3_exec(dbConnection, getStatementsSQL.c_str(), callback, 0, &errorMessage);
 
     for (vector<string> dbRow : dbResults) {
@@ -156,7 +208,7 @@ void Database::insertConstant(int codeLine, int constantValue) {
 
 // method to get all the constants from the database
 void Database::getConstants(vector<string>& results) {
-    dbResults.clear();  
+    dbResults.clear();
 
     string getConstantsSQL = "SELECT constantValue FROM Constant;";
     sqlite3_exec(dbConnection, getConstantsSQL.c_str(), callback, 0, &errorMessage);
