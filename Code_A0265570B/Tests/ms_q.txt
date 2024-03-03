@@ -1,4 +1,4 @@
-1 - Procedure
+1 - variable
 variable v;
 Select v
 flag, count, cenX, cenY, x, y, normSq
