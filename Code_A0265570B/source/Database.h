@@ -48,6 +48,25 @@ public:
 
     static void getPatterns(vector<string>& results);
 
+    //iteration2
+    static void FollowsT(string codeLine, vector<string>& results);
+
+    static void getModifies(string codeLine, vector<string>& results);
+
+    static void getModifies_OutputProcedures(string rightArg, vector<string>& results);
+
+    static void getUses_OutputVar(string leftArg, vector<string>& results);
+
+    static void getParentT_OutputStmt(string leftArg, vector<string>& results);
+
+    static void getParent_OutputStmt(string RightArg, vector<string>& results);
+
+    static void getUses_OutputStmt(string RightArg, vector<string>& results);
+
+    static void getPattern_OutputStmt(string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& results);
+
+    static void getCombo_ParentT_Pattern_OutputStmt(string res, vector<string>& results);
+
 private:
     static sqlite3* dbConnection;
 

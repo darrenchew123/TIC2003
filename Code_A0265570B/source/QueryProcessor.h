@@ -11,6 +11,7 @@ using namespace std;
 struct Query {
 
     string selectType;
+    string declaredVar;
 
     struct Condition {
 
@@ -22,16 +23,18 @@ struct Query {
 
     struct Pattern {
 
+        string patternType;
         string var;
         string patternLeftArg;
         string patternRightArg;
+        bool isSubexpression = false;
 
     } pattern;
 };
 
 class QueryProcessor {
 public:
-	QueryProcessor();
+    QueryProcessor();
 
     ~QueryProcessor();
 
@@ -43,9 +46,13 @@ public:
 
     Query parser(const vector<string>& tokens);
 
-	void evaluate(string query, vector<string>& results);
+    void evaluate(string query, vector<string>& results);
 
-    bool QueryProcessor::isT(const string &token);
+    bool QueryProcessor::isT(const string& token);
 
-    string QueryProcessor::checkQuotationMarks_returnArg(int &currIdx, const vector<string> &tokens);
+    string QueryProcessor::checkQuotationMarks_returnArg(int& currIdx, const vector<string>& tokens, Query& query);
+
+    void QueryProcessor::initSelectType(string token, Query& query);
+
+    vector<string> QueryProcessor::findCommonStrings(const vector<string>& arr1, const vector<string>& arr2);
 };
