@@ -297,6 +297,21 @@ void Database::getModifies(string codeLine, vector<string>& results) {
     }
 }
 
+void Database::getModifies_OutputStmt(string rightArg, vector<string>& results) {
+
+    dbResults.clear();
+
+    string getModifies_OutputStmtSQL = "SELECT statementCodeLine FROM Modifies WHERE variableName = '"
+        + rightArg + "';";
+
+    sqlite3_exec(dbConnection, getModifies_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
+
+    for (vector<string> dbRow : dbResults) {
+        string var = dbRow.at(0);
+        results.push_back(var);
+    }
+}
+
 void Database::getModifies_OutputProcedures(string rightArg, vector<string>& results) {
 
     dbResults.clear();
@@ -416,6 +431,7 @@ void Database::getPattern_OutputStmt(string patternLeftArg, string patternRightA
         getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE LHSExpression = '"
             + patternLeftArg + " ' AND RHSExpression = '"
             + patternRightArg + "';";
+        sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
 
     for (vector<string> dbRow : dbResults) {
@@ -430,6 +446,19 @@ void Database::getCombo_ParentT_Pattern_OutputStmt(string res, vector<string>& r
     string getCombo_ParentT_Pattern_OutputStmtSQL = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation WHERE childStatementCodeLine in ("
         + res + ");";
     sqlite3_exec(dbConnection, getCombo_ParentT_Pattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
+
+    for (vector<string> dbRow : dbResults) {
+        string stmt = dbRow.at(0);
+        results.push_back(stmt);
+    }
+}
+
+void Database::getCombo_Modifies_Pattern_OutputProcedure(string res, vector<string>& results) {
+    dbResults.clear();
+
+    string getCombo_Modifies_Pattern_OutputProcedureSQL = "SELECT DISTINCT procedureName FROM Statement WHERE CodeLine in ("
+        + res + ");";
+    sqlite3_exec(dbConnection, getCombo_Modifies_Pattern_OutputProcedureSQL.c_str(), callback, 0, &errorMessage);
 
     for (vector<string> dbRow : dbResults) {
         string stmt = dbRow.at(0);

@@ -145,7 +145,7 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
 
     Query queryToExecute = parser(tokens);
 
-    /*output.push_back(queryToExecute.selectType);
+    output.push_back(queryToExecute.selectType);
     output.push_back(queryToExecute.declaredVar);
     output.push_back(queryToExecute.condition.type);
     output.push_back(queryToExecute.condition.leftArg);
@@ -153,7 +153,7 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
     output.push_back(queryToExecute.pattern.patternType);
     output.push_back(queryToExecute.pattern.var);
     output.push_back(queryToExecute.pattern.patternLeftArg);
-    output.push_back(queryToExecute.pattern.patternRightArg);*/
+    output.push_back(queryToExecute.pattern.patternRightArg);
 
     string selectType = queryToExecute.selectType;
     string conditionType = queryToExecute.condition.type;
@@ -173,22 +173,40 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
             Database::getParentT_OutputStmt(leftArg, arr1);
             vector<string> arr2;
             Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
-            vector<string> childStatementCodeLine = findCommonStrings(arr1, arr2);
+            vector<string> commonStrings = findCommonStrings(arr1, arr2);
 
-            //for (string s : arr1) {
-            //    databaseResults.push_back(s);
-            //}
-            //for (string s : arr2) {
-            //    databaseResults.push_back(s);
-            //}
-            //concat to single string 
+            /*for (string s : arr1) {
+                databaseResults.push_back(s);
+            }
+            for (string s : arr2) {
+                databaseResults.push_back(s);
+            }*/
+
+            //modularise
             string res;
-            res += childStatementCodeLine[0];
-            for (int i = 1; i < childStatementCodeLine.size(); i++) {
+            res += commonStrings[0];
+            for (int i = 1; i < commonStrings.size(); i++) {
                 res += ",";
-                res += childStatementCodeLine[i];
+                res += commonStrings[i];
             }
             Database::getCombo_ParentT_Pattern_OutputStmt(res, databaseResults);
+        }
+        else if (selectType == "p" && conditionType == "Modifies" && patternType == "pattern") {
+
+            vector<string> arr1;
+            Database::getModifies_OutputStmt(rightArg, arr1);
+            vector<string> arr2;
+            Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
+            
+            //modularise
+            vector<string> commonStrings = findCommonStrings(arr1, arr2);
+            string res;
+            res += commonStrings[0];
+            for (int i = 1; i < commonStrings.size(); i++) {
+                res += ",";
+                res += commonStrings[i];
+            }
+            Database::getCombo_Modifies_Pattern_OutputProcedure(res, databaseResults);
         }
     }
 
