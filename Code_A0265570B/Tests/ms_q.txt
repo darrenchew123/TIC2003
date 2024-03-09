@@ -3,24 +3,14 @@ variable v;
 Select v
 flag, count, cenX, cenY, x, y, normSq
 5000
-2 - stmt
-stmt s;
-Select s such that Follows* (6, s)
-7, 8, 9
-5000
 3 - variable
 variable v;
 Select v such that Modifies (6, v)
 count
 5000
-4 - variable
-variable v1;
-Select v1 such that Uses (14, v1) 
-cenX, cenY
-5000
 5 - procedure
 procedure p;
-Select p such that Modifies (p, "x")
+Select p such that Modifies (p, "cenX")
 computeCentroid
 5000
 6 - assign, while
@@ -33,29 +23,23 @@ stmt s;
 Select s such that Parent (s, 7)
 5
 5000
-8 - assign, variable
-assign a; variable v;
-Select a such that Uses (a, v)
-6, 7, 8, 12, 13, 14
-5000
-9 - assign
+10 - assign
 assign a;
 Select a pattern a ( _ , "count + 1")
 6
 5000
-10 - assign
+11 - assign
 assign a1;
-Select a1 pattern a1( "normSq", "cenX * cenX")
-14
+Select a1 pattern a1( "normSq", _"cenX * cenX"_)
+15
 5000
-11 - assign, variable
-assign a; variable v;
-Select a such that Uses (a, v) pattern a (v, _)
-6, 7, 8, 12, 13
+11 - assign
+assign a1;
+Select a1 pattern a1( "cenX", _"cenX + x"_)
+7
 5000
-12 - assign, while
+13 - assign
 assign a; while w;
 Select w such that Parent* (w, a) pattern a ("count", _)
 5
 5000
-
