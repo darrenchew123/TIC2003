@@ -16,6 +16,8 @@ public:
 
     static void close();
 
+    static void postProcessDbResults(vector<string>& results, int columnIndex);
+
     static void insertProcedure(string procedureName);
 
     static void getProcedures(vector<string>& results);
@@ -26,13 +28,25 @@ public:
 
     static void getStatementType(const string &statementType, vector<string>& results);
 
-    static void insertVariable(string variableName, int codeLine);
+    static void insertVariable(string variableName, int statementCodeLine);
 
     static void getVariables(vector<string> &results);
 
-    static void insertConstant(int codeLine, int constantValue);
+    static void insertConstant(int statementCodeLine, int constantValue);
 
     static void getConstants(vector<string> &results);
+
+    static void insertParentChildRelation(int parentStatementCodeLine, int childStatementCodeLine);
+
+    static void getParentChildRelations(vector<string>& results);
+
+    static void insertModifies(int statementCodeLine, const string& variableName);
+
+    static void getModifies(vector<string>& results);
+
+    static void insertPattern(int statementCodeLine, const string& LHSExpression, const string& RHSExpression);
+
+    static void getPatterns(vector<string>& results);
 
 private:
     static sqlite3* dbConnection;
