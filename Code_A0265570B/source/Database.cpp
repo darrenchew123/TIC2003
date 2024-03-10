@@ -79,10 +79,8 @@ void Database::initialize() {
 }
 
 void Database::postProcessDbResults(vector<string>& results, int columnIndex) {
-    for (const vector<string>& dbRow : dbResults) {
-        if (dbRow.size() > columnIndex) {
-            results.push_back(dbRow.at(columnIndex));
-        }
+    for (const vector<string>& dbRow : dbResults) {  
+            results.push_back(dbRow.at(columnIndex));    
     }
 }
 
@@ -215,12 +213,12 @@ void Database::insertModifies(int statementCodeLine, const string& variableName)
     sqlite3_exec(dbConnection, insertSQL.c_str(), NULL, 0, &errorMessage);
 }
 
-void Database::getModifies(vector<string>& results) {
-    dbResults.clear();
-    string getSQL = "SELECT statementCodeLine, variableName FROM Modifies;";
-    sqlite3_exec(dbConnection, getSQL.c_str(), callback, 0, &errorMessage);
-    postProcessDbResults(results,0);
-}
+//void Database::getModifies(vector<string>& results) {
+//    dbResults.clear();
+//    string getSQL = "SELECT statementCodeLine, variableName FROM Modifies;";
+//    sqlite3_exec(dbConnection, getSQL.c_str(), callback, 0, &errorMessage);
+//    postProcessDbResults(results,0);
+//}
 
 void Database::insertPattern(int statementCodeLine, const string& LHSExpression, const string& RHSExpression) {
     string insertSQL = "INSERT INTO Pattern (statementCodeLine, LHSExpression, RHSExpression) VALUES ("
@@ -230,12 +228,12 @@ void Database::insertPattern(int statementCodeLine, const string& LHSExpression,
     sqlite3_exec(dbConnection, insertSQL.c_str(), NULL, 0, &errorMessage);
 }
 
-void Database::getPatterns(vector<string>& results) {
-    dbResults.clear();
-    string getSQL = "SELECT statementCodeLine, LHSExpression, RHSExpression FROM Pattern;";
-    sqlite3_exec(dbConnection, getSQL.c_str(), callback, 0, &errorMessage);
-    postProcessDbResults(results,2);
-}
+//void Database::getPatterns(vector<string>& results) {
+//    dbResults.clear();
+//    string getSQL = "SELECT statementCodeLine, LHSExpression, RHSExpression FROM Pattern;";
+//    sqlite3_exec(dbConnection, getSQL.c_str(), callback, 0, &errorMessage);
+//    postProcessDbResults(results,2);
+//}
 
 
 
@@ -261,40 +259,37 @@ int Database::callback(void* NotUsed, int argc, char** argv, char** azColName) {
 }
 
 
-void Database::FollowsT(string codeLine, vector<string>& results) {
-    dbResults.clear(); // Clear any existing results
+//void Database::FollowsT(string codeLine, vector<string>& results) {
+//    dbResults.clear(); // Clear any existing results
+//
+//    string getNextRelationSQL = "SELECT * FROM NextRelation;";
+//    sqlite3_exec(dbConnection, getNextRelationSQL.c_str(), callback, 0, &errorMessage);
+//
+//    string curr = codeLine;
+//
+//    // store in map; first = currentStatementCodeLine, second = nextStatementCodeLine
+//    unordered_map<string, string> m;
+//
+//    for (vector<string> next : dbResults) {
+//        m[next[0]] = next[1];
+//    }
+//
+//    while (curr != "") {
+//        results.push_back(m[curr]);
+//        curr = m[curr];
+//    }
+//}
 
-    string getNextRelationSQL = "SELECT * FROM NextRelation;";
-    sqlite3_exec(dbConnection, getNextRelationSQL.c_str(), callback, 0, &errorMessage);
-
-    string curr = codeLine;
-
-    // store in map; first = currentStatementCodeLine, second = nextStatementCodeLine
-    unordered_map<string, string> m;
-
-    for (vector<string> next : dbResults) {
-        m[next[0]] = next[1];
-    }
-
-    while (curr != "") {
-        results.push_back(m[curr]);
-        curr = m[curr];
-    }
-}
-
-void Database::getModifies(string codeLine, vector<string>& results) {
+void Database::getModifies_OutputVar(string codeLine, vector<string>& results) {
 
     dbResults.clear();
 
-    string getModifiesSQL = "SELECT variableName FROM Modifies WHERE statementCodeLine ='"
+    string getModifies_OutputVarSQL = "SELECT variableName FROM Modifies WHERE statementCodeLine ='"
         + codeLine + "';";
 
-    sqlite3_exec(dbConnection, getModifiesSQL.c_str(), callback, 0, &errorMessage);
+    sqlite3_exec(dbConnection, getModifies_OutputVarSQL.c_str(), callback, 0, &errorMessage);
 
-    for (vector<string> dbRow : dbResults) {
-        string var = dbRow.at(0);
-        results.push_back(var);
-    }
+    postProcessDbResults(results, 0);
 }
 
 void Database::getModifies_OutputStmt(string rightArg, vector<string>& results) {
@@ -306,10 +301,7 @@ void Database::getModifies_OutputStmt(string rightArg, vector<string>& results) 
 
     sqlite3_exec(dbConnection, getModifies_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
 
-    for (vector<string> dbRow : dbResults) {
-        string var = dbRow.at(0);
-        results.push_back(var);
-    }
+    postProcessDbResults(results, 0);
 }
 
 void Database::getModifies_OutputProcedures(string rightArg, vector<string>& results) {
@@ -321,26 +313,23 @@ void Database::getModifies_OutputProcedures(string rightArg, vector<string>& res
 
     sqlite3_exec(dbConnection, getModifies_OutputProceduresSQL.c_str(), callback, 0, &errorMessage);
 
-    for (vector<string> dbRow : dbResults) {
-        string var = dbRow.at(0);
-        results.push_back(var);
-    }
+    postProcessDbResults(results, 0);
 }
 
-void Database::getUses_OutputVar(string leftArg, vector<string>& results) {
-
-    dbResults.clear();
-
-    string getUses_OutputVar = "SELECT variableName FROM Uses WHERE statementCodeLine ='"
-        + leftArg + "';";
-
-    sqlite3_exec(dbConnection, getUses_OutputVar.c_str(), callback, 0, &errorMessage);
-
-    for (vector<string> dbRow : dbResults) {
-        string var = dbRow.at(0);
-        results.push_back(var);
-    }
-}
+//void Database::getUses_OutputVar(string leftArg, vector<string>& results) {
+//
+//    dbResults.clear();
+//
+//    string getUses_OutputVar = "SELECT variableName FROM Uses WHERE statementCodeLine ='"
+//        + leftArg + "';";
+//
+//    sqlite3_exec(dbConnection, getUses_OutputVar.c_str(), callback, 0, &errorMessage);
+//
+//    for (vector<string> dbRow : dbResults) {
+//        string var = dbRow.at(0);
+//        results.push_back(var);
+//    }
+//}
 
 void Database::getParentT_OutputStmt(string leftArg, vector<string>& results) {
 
@@ -356,12 +345,7 @@ void Database::getParentT_OutputStmt(string leftArg, vector<string>& results) {
         getParentT_OutputStmtSQL = "SELECT p.childStatementCodeLine FROM ParentChildRelation p JOIN Statement s ON p.parentStatementCodeLine = s.codeLine WHERE s.statementType = 'if';";
         sqlite3_exec(dbConnection, getParentT_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
-
-    for (vector<string> dbRow : dbResults) {
-        string stmt = dbRow.at(0);
-        results.push_back(stmt);
-    }
-
+    postProcessDbResults(results, 0);
 }
 
 void Database::getParent_OutputStmt(string RightArg, vector<string>& results) {
@@ -373,53 +357,57 @@ void Database::getParent_OutputStmt(string RightArg, vector<string>& results) {
 
     sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
 
-    for (vector<string> dbRow : dbResults) {
-        string stmt = dbRow.at(0);
-        results.push_back(stmt);
-    }
+    postProcessDbResults(results, 0);
 }
 
-void Database::getUses_OutputStmt(string RightArg, vector<string>& results) {
-
-    dbResults.clear();
-
-    string getUses_OutputStmt;
-
-    if (RightArg == "_") {
-        getUses_OutputStmt = "SELECT codeLine FROM Statement WHERE statementType = 'assign'";
-        sqlite3_exec(dbConnection, getUses_OutputStmt.c_str(), callback, 0, &errorMessage);
-    }
-    else if (RightArg == "v")
-    {
-        getUses_OutputStmt = "SELECT DISTINCT u.statementCodeLine FROM Uses u JOIN Statement s ON u.statementCodeLine = s.codeLine WHERE s.statementType = 'assign'; ";
-        sqlite3_exec(dbConnection, getUses_OutputStmt.c_str(), callback, 0, &errorMessage);
-    }
-
-    for (vector<string> dbRow : dbResults) {
-        string stmt = dbRow.at(0);
-        results.push_back(stmt);
-    }
-}
+//void Database::getUses_OutputStmt(string RightArg, vector<string>& results) {
+//
+//    dbResults.clear();
+//
+//    string getUses_OutputStmt;
+//
+//    if (RightArg == "_") {
+//        getUses_OutputStmt = "SELECT codeLine FROM Statement WHERE statementType = 'assign'";
+//        sqlite3_exec(dbConnection, getUses_OutputStmt.c_str(), callback, 0, &errorMessage);
+//    }
+//    else if (RightArg == "v")
+//    {
+//        getUses_OutputStmt = "SELECT DISTINCT u.statementCodeLine FROM Uses u JOIN Statement s ON u.statementCodeLine = s.codeLine WHERE s.statementType = 'assign'; ";
+//        sqlite3_exec(dbConnection, getUses_OutputStmt.c_str(), callback, 0, &errorMessage);
+//    }
+//
+//    for (vector<string> dbRow : dbResults) {
+//        string stmt = dbRow.at(0);
+//        results.push_back(stmt);
+//    }
+//}
 
 void Database::getPattern_OutputStmt(string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& results) {
     dbResults.clear();
 
     string getPattern_OutputStmtSQL;
 
-    if (patternLeftArg == "_") {
-        getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE RHSExpression = '"
-            + patternRightArg + "';";
+    if (patternLeftArg == "_" && patternRightArg == "_") {
+        getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern;";
         sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
-    // LHS not blank and RHS subexpression is true
     // to fix leftArg space
-    else if (isSubexpression) {
+    else if (isSubexpression && patternLeftArg != "_") {
         getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE RHSExpression like '%"
             + patternRightArg + "%' AND LHSExpression = '"
             + patternLeftArg + " ';";
         sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
-    // LHS not blank and RHS is blank
+    else if (isSubexpression && patternLeftArg == "_") {
+        getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE RHSExpression like '%"
+            + patternRightArg + "%';";
+        sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
+    }
+    else if (patternLeftArg == "_") {
+        getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE RHSExpression = '"
+            + patternRightArg + "';";
+        sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
+    }
     //to fix leftArg space
     else if (patternRightArg == "_") {
         getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE LHSExpression = '"
@@ -433,11 +421,7 @@ void Database::getPattern_OutputStmt(string patternLeftArg, string patternRightA
             + patternRightArg + "';";
         sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
-
-    for (vector<string> dbRow : dbResults) {
-        string stmt = dbRow.at(0);
-        results.push_back(stmt);
-    }
+        postProcessDbResults(results, 0);
 }
 
 void Database::getCombo_ParentT_Pattern_OutputStmt(string res, vector<string>& results) {
@@ -447,22 +431,16 @@ void Database::getCombo_ParentT_Pattern_OutputStmt(string res, vector<string>& r
         + res + ");";
     sqlite3_exec(dbConnection, getCombo_ParentT_Pattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
 
-    for (vector<string> dbRow : dbResults) {
-        string stmt = dbRow.at(0);
-        results.push_back(stmt);
-    }
+    postProcessDbResults(results, 0);
 }
 
 void Database::getCombo_Modifies_Pattern_OutputProcedure(string res, vector<string>& results) {
     dbResults.clear();
 
-    string getCombo_Modifies_Pattern_OutputProcedureSQL = "SELECT DISTINCT procedureName FROM Statement WHERE CodeLine in ("
+    string getCombo_Modifies_Pattern_OutputProcedureSQL = "SELECT DISTINCT procedureName FROM Statement WHERE codeLine in ("
         + res + ");";
     sqlite3_exec(dbConnection, getCombo_Modifies_Pattern_OutputProcedureSQL.c_str(), callback, 0, &errorMessage);
 
-    for (vector<string> dbRow : dbResults) {
-        string stmt = dbRow.at(0);
-        results.push_back(stmt);
-    }
+    postProcessDbResults(results, 0);
 }
 

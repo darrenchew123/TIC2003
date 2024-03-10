@@ -1,45 +1,16 @@
-1 - variable
-variable v;
-Select v
-flag, count, cenX, cenY, x, y, normSq
+1 - Assign
+variable v; 
+Select v such that Modifies(8, v)
+prime
 5000
-3 - variable
-variable v;
-Select v such that Modifies (6, v)
-count
+2 - Variable
+variable v; 
+Select v such that Modifies(11, v)
+i
 5000
-5 - procedure
-procedure p;
-Select p such that Modifies (p, "cenX")
-computeCentroid
+3 - Procedure
+procedure p; 
+Select p such that Modifies(p, "prime")
+isPrime
 5000
-6 - assign, while
-assign a; while w;
-Select a such that Parent* (w, a)
-6, 7, 8
-5000
-7 - stmt
-stmt s;
-Select s such that Parent (s, 7)
-5
-5000
-10 - assign
-assign a;
-Select a pattern a ( _ , "count + 1")
-6
-5000
-11 - assign
-assign a1;
-Select a1 pattern a1( "normSq", _"cenX * cenX"_)
-15
-5000
-11 - assign
-assign a1;
-Select a1 pattern a1( "cenX", _"cenX + x"_)
-7
-5000
-13 - assign
-assign a; while w;
-Select w such that Parent* (w, a) pattern a ("count", _)
-5
-5000
+

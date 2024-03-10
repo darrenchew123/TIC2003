@@ -33,8 +33,9 @@ string QueryProcessor::checkQuotationMarks_returnArg(int& currIdx, const vector<
             currIdx++;
         }
         currIdx++;
-        res = InfixToPostfix::infixToPostfix(res);
+        res = InfixToPostfix::infixToPostfix(res); // convert to postfix
     }
+    // tokens withing quotations marks
     else if (tokens[currIdx] == "\"") {
 
         currIdx++;
@@ -44,8 +45,9 @@ string QueryProcessor::checkQuotationMarks_returnArg(int& currIdx, const vector<
             currIdx++;
         }
         currIdx++;
-        res = InfixToPostfix::infixToPostfix(res);
+        res = InfixToPostfix::infixToPostfix(res); // convert to postfix
     }
+    //single token
     else {
         res = tokens[currIdx];
         currIdx++;
@@ -70,16 +72,15 @@ Query QueryProcessor::parser(const vector<string>& tokens) {
 
         if (tokens[i] == "Select") {
 
-            initSelectType(tokens[i + 1], query); // Assuming the next token is the select type
-            i++; // Move past the select type
+            initSelectType(tokens[i + 1], query); 
+            i++; 
         }
         else if (tokens[i] == "such" && tokens[i + 1] == "that") {
-            // Parse conditions like "Follows*", "Modifies", "Parent*", "Uses"
+           
             i += 2;
-            // cout << tokens[i+1];
-            //check if next token is "*"
+            
             bool flag_isT = isT(tokens[i + 1]);
-            // cout << flag_isT;
+           
             if (conditionTypes.count(tokens[i]) && flag_isT) {
 
                 query.condition.type = tokens[i];
@@ -103,7 +104,7 @@ Query QueryProcessor::parser(const vector<string>& tokens) {
                 query.condition.rightArg = checkQuotationMarks_returnArg(i, tokens, query);
             }
         }
-        //check for pattern combinations
+        //check for pattern 
         else if (patternTypes.count(tokens[i])) {
 
             query.pattern.patternType = tokens[i];
@@ -111,8 +112,7 @@ Query QueryProcessor::parser(const vector<string>& tokens) {
             i += 3;
             query.pattern.patternLeftArg = checkQuotationMarks_returnArg(i, tokens, query);
             i++;
-            query.pattern.patternRightArg = checkQuotationMarks_returnArg(i, tokens, query);
-            //query.pattern.patternRightArg = InfixToPostfix::infixToPostfix(query.pattern.patternRightArg);
+            query.pattern.patternRightArg = checkQuotationMarks_returnArg(i, tokens, query);           
         }
     }
 
@@ -133,6 +133,20 @@ vector<string> QueryProcessor::findCommonStrings(const vector<string>& arr1, con
     return commonStrings;
 }
 
+string QueryProcessor::concatenateWithCommas(const vector<string>& commonStrings) {
+    if (commonStrings.empty()) {
+        return ""; 
+    }
+
+    string res = commonStrings[0]; 
+    for (int i = 1; i < commonStrings.size(); i++) {
+        res += ","; 
+        res += commonStrings[i]; 
+    }
+
+    return res;
+}
+
 //Evalutate query to get result from DB
 void QueryProcessor::evaluate(string query, vector<string>& output) {
     output.clear();
@@ -145,7 +159,7 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
 
     Query queryToExecute = parser(tokens);
 
-    output.push_back(queryToExecute.selectType);
+   /* output.push_back(queryToExecute.selectType);
     output.push_back(queryToExecute.declaredVar);
     output.push_back(queryToExecute.condition.type);
     output.push_back(queryToExecute.condition.leftArg);
@@ -153,13 +167,14 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
     output.push_back(queryToExecute.pattern.patternType);
     output.push_back(queryToExecute.pattern.var);
     output.push_back(queryToExecute.pattern.patternLeftArg);
-    output.push_back(queryToExecute.pattern.patternRightArg);
+    output.push_back(queryToExecute.pattern.patternRightArg);*/
 
     string selectType = queryToExecute.selectType;
     string conditionType = queryToExecute.condition.type;
     bool isT = queryToExecute.condition.isT;
     string leftArg = queryToExecute.condition.leftArg;
     string rightArg = queryToExecute.condition.rightArg;
+
     string patternType = queryToExecute.pattern.patternType;
     string patternLeftArg = queryToExecute.pattern.patternLeftArg;
     string patternRightArg = queryToExecute.pattern.patternRightArg;
@@ -167,46 +182,43 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
 
     //check for combo
     if (conditionType != "" && patternType != "") {
-        //parent* and pattern and w
-        if (selectType == "w" && conditionType == "Parent" && isT && patternType == "pattern") {
+        
+        if ((selectType == "w" || selectType == "i") && conditionType == "Parent" && isT && patternType == "pattern") {
             vector<string> arr1;
             Database::getParentT_OutputStmt(leftArg, arr1);
             vector<string> arr2;
             Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
-            vector<string> commonStrings = findCommonStrings(arr1, arr2);
+            
+            vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
 
-            /*for (string s : arr1) {
-                databaseResults.push_back(s);
+            if (!commonStrings.empty()) {
+                string res = QueryProcessor::concatenateWithCommas(commonStrings);
+                Database::getCombo_ParentT_Pattern_OutputStmt(res, databaseResults);
             }
-            for (string s : arr2) {
-                databaseResults.push_back(s);
-            }*/
+        }
+        else if (selectType == "a" && conditionType == "Parent" && isT && patternType == "pattern") {
+            vector<string> arr1;
+            Database::getParentT_OutputStmt(leftArg, arr1);
+            vector<string> arr2;
+            Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
 
-            //modularise
-            string res;
-            res += commonStrings[0];
-            for (int i = 1; i < commonStrings.size(); i++) {
-                res += ",";
-                res += commonStrings[i];
-            }
-            Database::getCombo_ParentT_Pattern_OutputStmt(res, databaseResults);
+            vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
+
+            databaseResults = commonStrings; // return statementLines with assignments in a while loop
         }
         else if (selectType == "p" && conditionType == "Modifies" && patternType == "pattern") {
 
             vector<string> arr1;
             Database::getModifies_OutputStmt(rightArg, arr1);
             vector<string> arr2;
-            Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
-            
-            //modularise
-            vector<string> commonStrings = findCommonStrings(arr1, arr2);
-            string res;
-            res += commonStrings[0];
-            for (int i = 1; i < commonStrings.size(); i++) {
-                res += ",";
-                res += commonStrings[i];
+            Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);          
+
+            vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);         
+
+            if (!commonStrings.empty()) {
+                string res = QueryProcessor::concatenateWithCommas(commonStrings);
+                Database::getCombo_Modifies_Pattern_OutputProcedure(res, databaseResults);
             }
-            Database::getCombo_Modifies_Pattern_OutputProcedure(res, databaseResults);
         }
     }
 
@@ -222,16 +234,16 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
         else if (selectType == "v") {
 
             if (conditionType == "Modifies") {
-                Database::getModifies(queryToExecute.condition.leftArg, databaseResults);
+                Database::getModifies_OutputVar(leftArg, databaseResults);
             }
             // Select v1 such that Uses (14, v1) 
-            else if (conditionType == "Uses") {
+            /*else if (conditionType == "Uses") {
                 Database::getUses_OutputVar(queryToExecute.condition.leftArg, databaseResults);
-            }
+            }*/
             else
                 Database::getVariables(databaseResults);
         }
-        else if (queryToExecute.selectType == "c") {
+        else if (selectType == "c") {
             Database::getConstants(databaseResults);
         }
 
@@ -240,12 +252,9 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
 
             // iteration 2: stmt s; Select s such that Follows* (6, s)
             if (conditionType == "Follows") {
-                if (isT) {
+                /*if (isT) {
                     Database::FollowsT(leftArg, databaseResults);
-                }
-                else {
-
-                }
+                }*/
             }
             else if (conditionType == "Parent") {
                 if (isT) {
@@ -266,12 +275,20 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
                     Database::getParentT_OutputStmt(leftArg, databaseResults);
                 }
             }
-            else if (conditionType == "Uses") {
+            /*else if (conditionType == "Uses") {
                 Database::getUses_OutputStmt(rightArg, databaseResults);
-            }
+            }*/
             else if (patternType == "pattern") {
                 Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, databaseResults);
             }
+            else 
+                Database::getStatementType(selectType, databaseResults);
+        }
+        else if (selectType == "p") {
+            Database::getStatementType(selectType, databaseResults);
+        }
+        else if (selectType == "r") {
+            Database::getStatementType(selectType, databaseResults);
         }
     }
     for (string res : databaseResults)

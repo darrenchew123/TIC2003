@@ -1,18 +1,48 @@
-procedure computeCentroid {
-count = 0;
-cenX = 0;
-cenY = 0;
-read test;
-while ((x != 0) && (y != 0)) {
-count = count + 1;
-cenX = cenX + x;
-cenY = cenY + y;
+procedure isPrime {
+    read number;
+    if (number <= 1) then {
+        print 0;
+    } else {
+        prime = 1;
+        i = 2;
+        while (i * i <= number) {
+            if (number % i == 0) then {
+                prime = 0;
+                break;
+            }
+            i = i + 1;
+        }
+        print prime;
+    }
 }
-if (count == 0) then {
-flag = 1;
-} else {
-cenX = cenX / count;
-cenY = cenY / count;
+
+procedure factorial {
+    read n;
+    result = 1;
+
+    if (n < 0) then {
+        print Undefined;
+    } else {
+        while (n > 1) {
+            result = result * n;
+            n = n - 1;
+        }
+        print result;
+    }
 }
-normSq = cenX * cenX + cenY * cenY;
+
+procedure countDigits {
+    read number;
+    count = 0;
+
+    if (number == 0) then {
+        count = 1;
+    } else {
+        while (number != 0) {
+            number = number / 10;
+            count = count + 1;
+        }
+    }
+
+    print count;
 }

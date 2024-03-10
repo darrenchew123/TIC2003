@@ -55,4 +55,6 @@ public:
     void QueryProcessor::initSelectType(string token, Query& query);
 
     vector<string> QueryProcessor::findCommonStrings(const vector<string>& arr1, const vector<string>& arr2);
+
+    string QueryProcessor::concatenateWithCommas(const vector<string>& commonStrings);
 };
