@@ -48,13 +48,13 @@ public:
 
     void evaluate(string query, vector<string>& results);
 
-    bool QueryProcessor::isT(const string& token);
+    bool isT(const string& token);
 
-    string QueryProcessor::checkQuotationMarks_returnArg(int& currIdx, const vector<string>& tokens, Query& query);
+    string checkQuotationMarks_returnArg(int& currIdx, const vector<string>& tokens, Query& query);
 
-    void QueryProcessor::initSelectType(string token, Query& query);
+    void initSelectType(string token, Query& query);
 
-    vector<string> QueryProcessor::findCommonStrings(const vector<string>& arr1, const vector<string>& arr2);
+    vector<string> findCommonStrings(vector<string>& arr1, vector<string>& arr2);
 
-    string QueryProcessor::concatenateWithCommas(const vector<string>& commonStrings);
+    string concatenateWithCommas(const vector<string>& commonStrings);
 };

@@ -18,6 +18,8 @@ public:
 
     static void postProcessDbResults(vector<string>& results, int columnIndex);
 
+    static vector<string> findCommonStrings(vector<string>& arr1, vector<string>& arr2);
+
     static void insertProcedure(string procedureName);
 
     static void getProcedures(vector<string>& results);
@@ -65,11 +67,15 @@ public:
 
     static void getParentT_OutputAssign(string leftArg, vector<string>& results);
 
+    static void getStatements_OutputAssign(vector<string>& results);
+
     static void getParent_OutputStmt(string RightArg, vector<string>& results);
 
     static void getPattern_OutputStmt(string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& results);
 
     static void getCombo_ParentT_Pattern_OutputStmt(string res, vector<string>& results);
+
+    static void getXTypeOfParents_OutputStmt(string selectType, vector<string> &results);
 
     static void getCombo_Modifies_Pattern_OutputProcedure(string res, vector<string>& results);
 
