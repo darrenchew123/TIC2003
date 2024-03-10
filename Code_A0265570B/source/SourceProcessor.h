@@ -19,8 +19,8 @@ class SourceProcessor {
 private:
     struct StatementInfo {
         int lineCount;
-        std::string statementContent;
-        std::string statementType;
+        string statementContent;
+        string statementType;
     };
 
     void processProcedure(bool &inProcedure, string &procedureName, int &i, const vector<string> &tokens);

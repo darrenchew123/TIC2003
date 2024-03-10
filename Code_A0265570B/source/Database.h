@@ -24,17 +24,17 @@ public:
 
     static void insertStatement(string procedureName, string statementType, string statementContent, int codeLine);
 
-    static void getStatements(vector<string> &results);
+    static void getStatements(vector<string>& results);
 
-    static void getStatementType(const string &statementType, vector<string>& results);
+    static void getStatementType(const string& statementType, vector<string>& results);
 
     static void insertVariable(string variableName, int statementCodeLine);
 
-    static void getVariables(vector<string> &results);
+    static void getVariables(vector<string>& results);
 
     static void insertConstant(int statementCodeLine, int constantValue);
 
-    static void getConstants(vector<string> &results);
+    static void getConstants(vector<string>& results);
 
     static void insertParentChildRelation(int parentStatementCodeLine, int childStatementCodeLine);
 
@@ -42,7 +42,14 @@ public:
 
     static void insertModifies(int statementCodeLine, const string& variableName);
 
+    //static void getModifies(vector<string>& results);
+
     static void insertPattern(int statementCodeLine, const string& LHSExpression, const string& RHSExpression);
+
+    //static void getPatterns(vector<string>& results);
+
+    //iteration2
+    //static void FollowsT(string codeLine, vector<string>& results);
 
     static void getModifies_OutputVar(string codeLine, vector<string>& results);
 
@@ -50,7 +57,13 @@ public:
 
     static void getModifies_OutputProcedures(string rightArg, vector<string>& results);
 
+    //static void getUses_OutputVar(string leftArg, vector<string>& results);
+
+    //static void getUses_OutputStmt(string RightArg, vector<string>& results);
+
     static void getParentT_OutputStmt(string leftArg, vector<string>& results);
+
+    static void getParentT_OutputAssign(string leftArg, vector<string>& results);
 
     static void getParent_OutputStmt(string RightArg, vector<string>& results);
 

@@ -12,66 +12,66 @@ void Database::initialize() {
 
     // drop existing tables (if any)
     const char* dropTablesSQL = "DROP TABLE IF EXISTS Modifies;"
-                                "DROP TABLE IF EXISTS Pattern;"
-                                "DROP TABLE IF EXISTS ParentChildRelation;"
-                                "DROP TABLE IF EXISTS Variable;"
-                                "DROP TABLE IF EXISTS Statement;"
-                                "DROP TABLE IF EXISTS Constant;"
-                                "DROP TABLE IF EXISTS Procedure;";
+        "DROP TABLE IF EXISTS Pattern;"
+        "DROP TABLE IF EXISTS ParentChildRelation;"
+        "DROP TABLE IF EXISTS Variable;"
+        "DROP TABLE IF EXISTS Statement;"
+        "DROP TABLE IF EXISTS Constant;"
+        "DROP TABLE IF EXISTS Procedure;";
     sqlite3_exec(dbConnection, dropTablesSQL, NULL, 0, &errorMessage);
 
     // create Procedure table
     const char* createProcedureTableSQL = "CREATE TABLE Procedure ("
-                                          "procedureName VARCHAR(255) PRIMARY KEY);";
+        "procedureName VARCHAR(255) PRIMARY KEY);";
     sqlite3_exec(dbConnection, createProcedureTableSQL, NULL, 0, &errorMessage);
 
     // create Statement table
     const char* createStatementTableSQL = "CREATE TABLE Statement ("
-                                          "codeLine INT PRIMARY KEY,"
-                                          "procedureName VARCHAR(255),"
-                                          "statementType VARCHAR(50),"
-                                          "statementContent VARCHAR(255),"
-                                          "FOREIGN KEY (procedureName) REFERENCES Procedure(procedureName));";
+        "codeLine INT PRIMARY KEY,"
+        "procedureName VARCHAR(255),"
+        "statementType VARCHAR(50),"
+        "statementContent VARCHAR(255),"
+        "FOREIGN KEY (procedureName) REFERENCES Procedure(procedureName));";
     sqlite3_exec(dbConnection, createStatementTableSQL, NULL, 0, &errorMessage);
 
     // create Variable table
     const char* createVariableTableSQL = "CREATE TABLE Variable ("
-                                         "variableName VARCHAR(255),"
-                                         "statementCodeLine INT,"
-                                         "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine));";
+        "variableName VARCHAR(255),"
+        "statementCodeLine INT,"
+        "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine));";
     sqlite3_exec(dbConnection, createVariableTableSQL, NULL, 0, &errorMessage);
 
     // create Constant table
     const char* createConstantTableSQL = "CREATE TABLE Constant ("
-                                         "statementCodeLine INT,"
-                                         "constantValue INT, "
-                                         "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine));";
+        "statementCodeLine INT,"
+        "constantValue INT, "
+        "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine));";
     sqlite3_exec(dbConnection, createConstantTableSQL, NULL, 0, &errorMessage);
 
     // create ParentChildRelation table
     const char* createParentChildRelationTableSQL = "CREATE TABLE ParentChildRelation ("
-                                                    "parentStatementCodeLine INT,"
-                                                    "childStatementCodeLine INT,"
-                                                    "PRIMARY KEY (parentStatementCodeLine, childStatementCodeLine),"
-                                                    "FOREIGN KEY (parentStatementCodeLine) REFERENCES Statement(codeLine));";
+        "parentStatementCodeLine INT,"
+        "childStatementCodeLine INT,"
+        "PRIMARY KEY (parentStatementCodeLine, childStatementCodeLine),"
+        "FOREIGN KEY (parentStatementCodeLine) REFERENCES Statement(codeLine));";
     sqlite3_exec(dbConnection, createParentChildRelationTableSQL, NULL, 0, &errorMessage);
 
 
 
     // create Modifies table
     const char* createModifiesTableSQL = "CREATE TABLE Modifies ("
-                                         "statementCodeLine INT,"
-                                         "variableName VARCHAR(255),"
-                                         "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine),"
-                                         "FOREIGN KEY (variableName) REFERENCES Variable(variableName));";
+        "statementCodeLine INT,"
+        "variableName VARCHAR(255),"
+        "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine),"
+        "FOREIGN KEY (variableName) REFERENCES Variable(variableName));";
     sqlite3_exec(dbConnection, createModifiesTableSQL, NULL, 0, &errorMessage);
 
     // create Pattern table
     const char* createPatternTableSQL = "CREATE TABLE Pattern ("
-                                        "statementCodeLine INT,"
-                                        "LHSExpression VARCHAR(255),"
-                                        "RHSExpression VARCHAR(255),"
-                                        "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine));";
+        "statementCodeLine INT,"
+        "LHSExpression VARCHAR(255),"
+        "RHSExpression VARCHAR(255),"
+        "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine));";
     sqlite3_exec(dbConnection, createPatternTableSQL, NULL, 0, &errorMessage);
 
     // initialize the result vector
@@ -79,20 +79,20 @@ void Database::initialize() {
 }
 
 void Database::postProcessDbResults(vector<string>& results, int columnIndex) {
-    for (const vector<string>& dbRow : dbResults) {  
-            results.push_back(dbRow.at(columnIndex));    
+    for (const vector<string>& dbRow : dbResults) {
+        results.push_back(dbRow.at(columnIndex));
     }
 }
 
 void Database::clear() {
     // Delete all records from each table
     const char* clearTablesSQL = "DELETE FROM Modifies;"
-                                 "DELETE FROM Pattern;"
-                                 "DELETE FROM ParentChildRelation;"
-                                 "DELETE FROM Variable;"
-                                 "DELETE FROM Statement;"
-                                 "DELETE FROM Constant;"
-                                 "DELETE FROM Procedure;";
+        "DELETE FROM Pattern;"
+        "DELETE FROM ParentChildRelation;"
+        "DELETE FROM Variable;"
+        "DELETE FROM Statement;"
+        "DELETE FROM Constant;"
+        "DELETE FROM Procedure;";
     sqlite3_exec(dbConnection, clearTablesSQL, NULL, 0, &errorMessage);
 }
 
@@ -109,7 +109,7 @@ void Database::insertProcedure(string procedureName) {
 }
 
 // method to get all the procedures from the database
-void Database::getProcedures(vector<string>& results){
+void Database::getProcedures(vector<string>& results) {
     // clear the existing results
     dbResults.clear();
 
@@ -119,16 +119,16 @@ void Database::getProcedures(vector<string>& results){
     sqlite3_exec(dbConnection, getProceduresSQL.c_str(), callback, 0, &errorMessage);
 
     // postprocess the results from the database so that the output is just a vector of procedure names
-    postProcessDbResults(results,0);
+    postProcessDbResults(results, 0);
 }
 
 // method to get insert statement into the database
 void Database::insertStatement(string procedureName, string statementType, string statementContent, int codeLine) {
     string insertStatementSQL = "INSERT INTO Statement (codeLine, procedureName, statementType, statementContent) VALUES ("
-                                + to_string(codeLine) + ", '"
-                                + procedureName + "', '"
-                                + statementType + "', '"
-                                + statementContent + "');";
+        + to_string(codeLine) + ", '"
+        + procedureName + "', '"
+        + statementType + "', '"
+        + statementContent + "');";
     sqlite3_exec(dbConnection, insertStatementSQL.c_str(), NULL, 0, &errorMessage);
 }
 
@@ -139,24 +139,24 @@ void Database::getStatements(vector<string>& results) {
     string getStatementsSQL = "SELECT DISTINCT codeLine FROM Statement;";
     sqlite3_exec(dbConnection, getStatementsSQL.c_str(), callback, 0, &errorMessage);
 
-    postProcessDbResults(results,0);
+    postProcessDbResults(results, 0);
 }
 
 // method to get all the statements line from the database by statement type eg. print, push
-void Database::getStatementType(const string &statementType, vector<string>& results) {
+void Database::getStatementType(const string& statementType, vector<string>& results) {
     dbResults.clear();
     string getStatementsSQL = "SELECT codeLine FROM Statement WHERE statementType ='"
-                               + statementType + "';";
+        + statementType + "';";
     sqlite3_exec(dbConnection, getStatementsSQL.c_str(), callback, 0, &errorMessage);
 
-    postProcessDbResults(results,0);
+    postProcessDbResults(results, 0);
 }
 
 // method to insert a variable into the database
 void Database::insertVariable(string variableName, int statementCodeLine) {
     string insertVariableSQL = "INSERT INTO Variable (variableName, statementCodeLine) VALUES ('"
-                               + variableName + "', '"
-                               + to_string(statementCodeLine) + "');";
+        + variableName + "', '"
+        + to_string(statementCodeLine) + "');";
     sqlite3_exec(dbConnection, insertVariableSQL.c_str(), NULL, 0, &errorMessage);
 }
 
@@ -167,32 +167,32 @@ void Database::getVariables(vector<string>& results) {
     string getVariablesSQL = "SELECT DISTINCT variableName FROM Variable;";
     sqlite3_exec(dbConnection, getVariablesSQL.c_str(), callback, 0, &errorMessage);
 
-    postProcessDbResults(results,0);
+    postProcessDbResults(results, 0);
 }
 
 // method to insert a constant into the database
 void Database::insertConstant(int statementCodeLine, int constantValue) {
     string insertConstantSQL = "INSERT INTO Constant (statementCodeLine,constantValue) VALUES ("
-                               + to_string(statementCodeLine) + ","
-                               + to_string(constantValue) + ");";
+        + to_string(statementCodeLine) + ","
+        + to_string(constantValue) + ");";
 
     sqlite3_exec(dbConnection, insertConstantSQL.c_str(), NULL, 0, &errorMessage);
 }
 
 // method to get all the constants from the database
 void Database::getConstants(vector<string>& results) {
-    dbResults.clear();  
+    dbResults.clear();
 
     string getConstantsSQL = "SELECT constantValue FROM Constant;";
     sqlite3_exec(dbConnection, getConstantsSQL.c_str(), callback, 0, &errorMessage);
 
-    postProcessDbResults(results,0);
+    postProcessDbResults(results, 0);
 }
 
 void Database::insertParentChildRelation(int parentStatementCodeLine, int childStatementCodeLine) {
     string insertSQL = "INSERT INTO ParentChildRelation (parentStatementCodeLine, childStatementCodeLine) VALUES ("
-                       + to_string(parentStatementCodeLine) + ", "
-                       + to_string(childStatementCodeLine) + ");";
+        + to_string(parentStatementCodeLine) + ", "
+        + to_string(childStatementCodeLine) + ");";
     sqlite3_exec(dbConnection, insertSQL.c_str(), NULL, 0, &errorMessage);
 }
 
@@ -200,7 +200,7 @@ void Database::getParentChildRelations(vector<string>& results) {
     dbResults.clear();
     string getSQL = "SELECT parentStatementCodeLine, childStatementCodeLine FROM ParentChildRelation;";
     sqlite3_exec(dbConnection, getSQL.c_str(), callback, 0, &errorMessage);
-    postProcessDbResults(results,0);
+    postProcessDbResults(results, 0);
 }
 
 
@@ -208,8 +208,8 @@ void Database::getParentChildRelations(vector<string>& results) {
 
 void Database::insertModifies(int statementCodeLine, const string& variableName) {
     string insertSQL = "INSERT INTO Modifies (statementCodeLine, variableName) VALUES ("
-                       + to_string(statementCodeLine) + ", '"
-                       + variableName + "');";
+        + to_string(statementCodeLine) + ", '"
+        + variableName + "');";
     sqlite3_exec(dbConnection, insertSQL.c_str(), NULL, 0, &errorMessage);
 }
 
@@ -222,9 +222,9 @@ void Database::insertModifies(int statementCodeLine, const string& variableName)
 
 void Database::insertPattern(int statementCodeLine, const string& LHSExpression, const string& RHSExpression) {
     string insertSQL = "INSERT INTO Pattern (statementCodeLine, LHSExpression, RHSExpression) VALUES ("
-                       + to_string(statementCodeLine) + ", '"
-                       + LHSExpression + "', '"
-                       + RHSExpression + "');";
+        + to_string(statementCodeLine) + ", '"
+        + LHSExpression + "', '"
+        + RHSExpression + "');";
     sqlite3_exec(dbConnection, insertSQL.c_str(), NULL, 0, &errorMessage);
 }
 
@@ -259,6 +259,26 @@ int Database::callback(void* NotUsed, int argc, char** argv, char** azColName) {
 }
 
 
+//void Database::FollowsT(string codeLine, vector<string>& results) {
+//    dbResults.clear(); // Clear any existing results
+//
+//    string getNextRelationSQL = "SELECT * FROM NextRelation;";
+//    sqlite3_exec(dbConnection, getNextRelationSQL.c_str(), callback, 0, &errorMessage);
+//
+//    string curr = codeLine;
+//
+//    // store in map; first = currentStatementCodeLine, second = nextStatementCodeLine
+//    unordered_map<string, string> m;
+//
+//    for (vector<string> next : dbResults) {
+//        m[next[0]] = next[1];
+//    }
+//
+//    while (curr != "") {
+//        results.push_back(m[curr]);
+//        curr = m[curr];
+//    }
+//}
 
 void Database::getModifies_OutputVar(string codeLine, vector<string>& results) {
 
@@ -289,13 +309,27 @@ void Database::getModifies_OutputProcedures(string rightArg, vector<string>& res
     dbResults.clear();
 
     string getModifies_OutputProceduresSQL = "SELECT DISTINCT s.procedureName FROM Statement s JOIN Modifies m ON m.statementCodeLine = s.codeLine WHERE m.variableName = '"
-        + rightArg +"';";
+        + rightArg + "';";
 
     sqlite3_exec(dbConnection, getModifies_OutputProceduresSQL.c_str(), callback, 0, &errorMessage);
 
     postProcessDbResults(results, 0);
 }
 
+//void Database::getUses_OutputVar(string leftArg, vector<string>& results) {
+//
+//    dbResults.clear();
+//
+//    string getUses_OutputVar = "SELECT variableName FROM Uses WHERE statementCodeLine ='"
+//        + leftArg + "';";
+//
+//    sqlite3_exec(dbConnection, getUses_OutputVar.c_str(), callback, 0, &errorMessage);
+//
+//    for (vector<string> dbRow : dbResults) {
+//        string var = dbRow.at(0);
+//        results.push_back(var);
+//    }
+//}
 
 void Database::getParentT_OutputStmt(string leftArg, vector<string>& results) {
 
@@ -314,6 +348,10 @@ void Database::getParentT_OutputStmt(string leftArg, vector<string>& results) {
     postProcessDbResults(results, 0);
 }
 
+void Database::getParentT_OutputAssign(string leftArg, vector<string>& results) {
+
+}
+
 void Database::getParent_OutputStmt(string RightArg, vector<string>& results) {
 
     dbResults.clear();
@@ -326,6 +364,27 @@ void Database::getParent_OutputStmt(string RightArg, vector<string>& results) {
     postProcessDbResults(results, 0);
 }
 
+//void Database::getUses_OutputStmt(string RightArg, vector<string>& results) {
+//
+//    dbResults.clear();
+//
+//    string getUses_OutputStmt;
+//
+//    if (RightArg == "_") {
+//        getUses_OutputStmt = "SELECT codeLine FROM Statement WHERE statementType = 'assign'";
+//        sqlite3_exec(dbConnection, getUses_OutputStmt.c_str(), callback, 0, &errorMessage);
+//    }
+//    else if (RightArg == "v")
+//    {
+//        getUses_OutputStmt = "SELECT DISTINCT u.statementCodeLine FROM Uses u JOIN Statement s ON u.statementCodeLine = s.codeLine WHERE s.statementType = 'assign'; ";
+//        sqlite3_exec(dbConnection, getUses_OutputStmt.c_str(), callback, 0, &errorMessage);
+//    }
+//
+//    for (vector<string> dbRow : dbResults) {
+//        string stmt = dbRow.at(0);
+//        results.push_back(stmt);
+//    }
+//}
 
 void Database::getPattern_OutputStmt(string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& results) {
     dbResults.clear();
@@ -336,11 +395,10 @@ void Database::getPattern_OutputStmt(string patternLeftArg, string patternRightA
         getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern;";
         sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
-    // to fix leftArg space
     else if (isSubexpression && patternLeftArg != "_") {
         getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE RHSExpression like '%"
             + patternRightArg + "%' AND LHSExpression = '"
-            + patternLeftArg + " ';";
+            + patternLeftArg + "';";
         sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
     else if (isSubexpression && patternLeftArg == "_") {
@@ -353,20 +411,18 @@ void Database::getPattern_OutputStmt(string patternLeftArg, string patternRightA
             + patternRightArg + "';";
         sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
-    //to fix leftArg space
     else if (patternRightArg == "_") {
         getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE LHSExpression = '"
-            + patternLeftArg + " ';";
+            + patternLeftArg + "';";
         sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
-    //to fix leftArg space
     else if (patternLeftArg != "" && patternRightArg != "") {
         getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE LHSExpression = '"
-            + patternLeftArg + " ' AND RHSExpression = '"
+            + patternLeftArg + "' AND RHSExpression = '"
             + patternRightArg + "';";
         sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
-        postProcessDbResults(results, 0);
+    postProcessDbResults(results, 0);
 }
 
 void Database::getCombo_ParentT_Pattern_OutputStmt(string res, vector<string>& results) {
