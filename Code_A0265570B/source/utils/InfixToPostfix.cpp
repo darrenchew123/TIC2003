@@ -1,7 +1,9 @@
 #include "InfixToPostfix.h"
+#include <stack>
+#include <string>
 
 bool InfixToPostfix::isOperator(char c) {
-    return c == '+' || c == '-' || c == '*' || c == '/';
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '%';
 }
 
 bool InfixToPostfix::isOperand(char c) {
@@ -10,19 +12,27 @@ bool InfixToPostfix::isOperand(char c) {
 
 int InfixToPostfix::getPrecedence(char op) {
     if (op == '+' || op == '-') return 1;
-    if (op == '*' || op == '/') return 2;
+    if (op == '*' || op == '/' || op == '%') return 2;
     return 0;
 }
 
-string InfixToPostfix::infixToPostfix(const std::string& infix) {
-    std::string postfix;
-    std::stack<char> opStack;
+string InfixToPostfix::infixToPostfix(const string& infix) {
+    string postfix;
+    stack<char> opStack;
 
     for (char c : infix) {
         if (isOperand(c)) {
             postfix += c;
+        } else if (c == '(') {
+            opStack.push(c);
+        } else if (c == ')') {
+            while (!opStack.empty() && opStack.top() != '(') {
+                postfix += opStack.top();
+                opStack.pop();
+            }
+            if (!opStack.empty()) opStack.pop(); // Pop the '('
         } else if (isOperator(c)) {
-            while (!opStack.empty() && getPrecedence(opStack.top()) >= getPrecedence(c)) {
+            while (!opStack.empty() && getPrecedence(opStack.top()) >= getPrecedence(c) && opStack.top() != '(') {
                 postfix += opStack.top();
                 opStack.pop();
             }
@@ -31,7 +41,9 @@ string InfixToPostfix::infixToPostfix(const std::string& infix) {
     }
 
     while (!opStack.empty()) {
-        postfix += opStack.top();
+        if (opStack.top() != '(') {
+            postfix += opStack.top();
+        }
         opStack.pop();
     }
     return postfix;
