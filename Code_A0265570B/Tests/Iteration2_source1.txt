@@ -8,7 +8,6 @@ procedure isPrime {
         while (i * i <= number) {
             if (number % i == 0) then {
                 prime = 0;
-                break;
             }
             i = i + 1;
         }
