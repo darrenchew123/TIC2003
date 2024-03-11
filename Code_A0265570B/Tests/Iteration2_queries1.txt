@@ -9,7 +9,7 @@ Select v such that Modifies(9, v)
 i
 5000
 3 - Modifies
-procedure p; 
+procedure p;
 Select p such that Modifies(p, "prime")
 isPrime
 5000
@@ -24,7 +24,7 @@ Select s such that Parent* (w, s)
 8, 9
 5000
 6 - Parent*
-if i; assign a;
+if i; stmt s;
 Select a such that Parent* (i, a)
 4, 5, 8, 9
 5000
@@ -44,27 +44,27 @@ Select a pattern a ( "prime" , "0")
 8
 5000
 9 - Modifies + Pattern
-Procedure p; 
+Procedure p;
 Select p such that Modifies (p, "prime") pattern a ("prime", "0")
 isPrime
 5000
 10 - Modifies + Pattern
-Procedure p; 
+Procedure p;
 Select p such that Modifies (p, "prime") pattern a ("prime", _"1"_)
 isPrime
 5000
 12 - Modifies + Pattern
-Procedure p; 
+Procedure p;
 Select p such that Modifies (p, "i") pattern a ("i", "2")
 isPrime
 5000
 13 - Modifies + Pattern
-Procedure p; 
+Procedure p;
 Select p such that Modifies (p, "prime") pattern a ("prime", "1")
 isPrime
 5000
 14 - Modifies + Pattern
-Procedure p; 
+Procedure p;
 Select p such that Modifies (p, "i") pattern a (_, "i + 1")
 isPrime
 5000
