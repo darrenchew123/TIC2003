@@ -24,7 +24,7 @@ Select s such that Parent* (w, s)
 6, 7
 5000
 6 - Parent*
-if i; stmt s;
+if i; assign a;
 Select a such that Parent* (i, a)
 4, 6, 7
 5000
