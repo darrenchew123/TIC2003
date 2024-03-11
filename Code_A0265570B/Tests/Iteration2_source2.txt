@@ -1,0 +1,14 @@
+procedure factorial {
+    read n;
+    result = 1;
+
+    if (n < 0) then {
+        print Undefined;
+    } else {
+        while (n > 1) {
+            result = result * n;
+            n = n - 1;
+        }
+        print result;
+    }
+}

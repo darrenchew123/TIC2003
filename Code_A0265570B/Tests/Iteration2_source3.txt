@@ -1,0 +1,15 @@
+procedure countDigits {
+    read number;
+    count = 0;
+
+    if (number == 0) then {
+        count = 1;
+    } else {
+        while (number != 0) {
+            number = number / 10;
+            count = count + 1;
+        }
+    }
+
+    print count;
+}

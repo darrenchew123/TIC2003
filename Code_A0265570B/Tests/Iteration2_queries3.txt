@@ -1,0 +1,95 @@
+1 - Modifies
+variable v; 
+Select v such that Modifies(7, v)
+count
+5000
+2 - Modifies
+variable v; 
+Select v such that Modifies(1, v)
+number
+5000
+3 - Modifies
+procedure p; 
+Select p such that Modifies(p, "number")
+countDigits
+5000
+4 - Parent
+stmt s;
+Select s such that Parent (s, 5)
+3
+5000
+5 - Parent*
+while w; stmt s;
+Select s such that Parent* (w, s)
+6, 7
+5000
+6 - Parent*
+if i; stmt s;
+Select a such that Parent* (i, a)
+4, 6, 7
+5000
+7 - Pattern
+assign a;
+Select a pattern a ( _ , "0")
+2
+5000
+8 - Pattern
+assign a;
+Select a pattern a ( _ , _"number"_)
+6
+5000
+9 - Pattern
+assign a;
+Select a pattern a ( "count" , _)
+2, 4, 7
+5000
+10 - Modifies + Pattern
+Procedure p; 
+Select p such that Modifies (p, "count") pattern a ("count", "1")
+countDigits
+5000
+11 - Modifies + Pattern
+Procedure p; 
+Select p such that Modifies (p, "count") pattern a (_, _"count"_)
+countDigits
+5000
+12 - Modifies + Pattern
+Procedure p; 
+Select p such that Modifies (p, "count") pattern a ("count", _"1"_)
+countDigits
+5000
+13 - Modifies + Pattern
+Procedure p; 
+Select p such that Modifies (p, "number") pattern a ("number", _)
+countDigits
+5000
+14 - Modifies + Pattern
+Procedure p; 
+Select p such that Modifies (p, "number") pattern a ("number", _"10"_)
+countDigits
+5000
+15 - Parent* + Pattern
+while w; assign a;
+Select w such that Parent* (w, a) pattern a ("number", _)
+5
+5000
+16 - Parent* + Pattern
+while w; assign a;
+Select a such that Parent* (w, a) pattern a (_, "count + 1")
+7
+5000
+17 - Parent* + Pattern
+if i; assign a;
+Select i such that Parent* (i, a) pattern a ("number", "number / 10")
+3
+5000
+18 - Parent* + Pattern
+if i; assign a;
+Select i such that Parent* (i, a) pattern a ("count", _"1"_)
+3
+5000
+19 - Parent* + Pattern
+if i; assign a;
+Select a such that Parent* (i, a) pattern a ("count", _"1"_)
+4, 7
+5000
