@@ -57,4 +57,10 @@ public:
     vector<string> findCommonStrings(vector<string>& arr1, vector<string>& arr2);
 
     string concatenateWithCommas(const vector<string>& commonStrings);
+
+    void getParentT_Pattern_OutputParentT(string& leftArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, string& selectType, vector<string> &databaseResults);
+
+    void getParentT_Pattern_OutputAssign(string& leftArg, const string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults);
+
+    void getModifies_Pattern_OutputProcedure(string& rightArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults);
 };

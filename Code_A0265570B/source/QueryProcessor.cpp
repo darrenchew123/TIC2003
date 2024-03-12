@@ -147,6 +147,52 @@ string QueryProcessor::concatenateWithCommas(const vector<string>& commonStrings
     return res;
 }
 
+
+void QueryProcessor::getParentT_Pattern_OutputParentT(string& leftArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, string& selectType, vector<string> &databaseResults) {
+    vector<string> arr1;
+    Database::getParentT_OutputAssign(leftArg, arr1);
+    vector<string> arr2;
+    Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
+
+    vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
+
+    if (!commonStrings.empty()) {
+        string res = QueryProcessor::concatenateWithCommas(commonStrings);
+        Database::getCombo_ParentT_Pattern_OutputStmt(res, databaseResults);
+
+        if (!databaseResults.empty()) {
+            vector<string> arr4;
+            Database::getXTypeOfParents_OutputStmt(selectType, arr4);
+            databaseResults = QueryProcessor::findCommonStrings(databaseResults, arr4);
+        }
+    }
+}
+
+void QueryProcessor::getParentT_Pattern_OutputAssign(string& leftArg, const string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
+    vector<string> arr1;
+    Database::getParentT_OutputAssign(leftArg, arr1);
+    vector<string> arr2;
+    Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
+
+    vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
+
+    databaseResults = commonStrings; 
+}
+
+void QueryProcessor::getModifies_Pattern_OutputProcedure(string& rightArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
+    vector<string> arr1;
+    Database::getModifies_OutputStmt(rightArg, arr1);
+    vector<string> arr2;
+    Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
+
+    vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
+
+    if (!commonStrings.empty()) {
+        string res = QueryProcessor::concatenateWithCommas(commonStrings);
+        Database::getCombo_Modifies_Pattern_OutputProcedure(res, databaseResults);
+    }
+}
+
 //Evalutate query to get result from DB
 void QueryProcessor::evaluate(string query, vector<string>& output) {
     output.clear();
@@ -184,41 +230,44 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
     if (conditionType != "" && patternType != "") {
 
         if ((selectType == "w" || selectType == "i") && conditionType == "Parent" && isT && patternType == "pattern") {
-            vector<string> arr1;
-            Database::getParentT_OutputAssign(leftArg, arr1);
-            vector<string> arr2;
-            Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
+            //vector<string> arr1;
+            //Database::getParentT_OutputAssign(leftArg, arr1);
+            //vector<string> arr2;
+            //Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
 
-            vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
+            //vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
 
-            if (!commonStrings.empty()) {
-                string res = QueryProcessor::concatenateWithCommas(commonStrings);
-                Database::getCombo_ParentT_Pattern_OutputStmt(res, databaseResults); // return parentLines (note that nested may return if/while loops)
-               
+            //if (!commonStrings.empty()) {
+            //    string res = QueryProcessor::concatenateWithCommas(commonStrings);
+            //    Database::getCombo_ParentT_Pattern_OutputStmt(res, databaseResults); // return parentLines (note that nested may return if/while loops)
 
-                //note that nested may return both if/while loops, hence we have to check parent type and return the right parent/s
-                vector<string> arr3 = databaseResults;
-                vector<string> arr4;
-                Database::getXTypeOfParents_OutputStmt(selectType, arr4);
-                if (!arr3.empty() && !arr4.empty()) {
-                    databaseResults = QueryProcessor::findCommonStrings(arr3, arr4);
-                }
-            }
-            
+
+            //    //note that nested may return both if/while loops, hence we have to check parent type and return the right parent/s
+            //    vector<string> arr3 = databaseResults;
+            //    vector<string> arr4;
+            //    Database::getXTypeOfParents_OutputStmt(selectType, arr4);
+            //    if (!arr3.empty() && !arr4.empty()) {
+            //        databaseResults = QueryProcessor::findCommonStrings(arr3, arr4);
+            //    }
+            //}
+
+            QueryProcessor::getParentT_Pattern_OutputParentT(leftArg, patternLeftArg, patternRightArg, isSubexpression, selectType, databaseResults);   
         }
         else if (selectType == "a" && conditionType == "Parent" && isT && patternType == "pattern") {
-            vector<string> arr1;
-            Database::getParentT_OutputAssign(leftArg, arr1);
-            vector<string> arr2;
-            Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
+            //vector<string> arr1;
+            //Database::getParentT_OutputAssign(leftArg, arr1);
+            //vector<string> arr2;
+            //Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
 
-            vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
+            //vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
 
-            databaseResults = commonStrings; // return childrenLines
+            //databaseResults = commonStrings; // return childrenLines
+
+            QueryProcessor::getParentT_Pattern_OutputAssign(leftArg, patternLeftArg, patternRightArg, isSubexpression, databaseResults);
         }
         else if (selectType == "p" && conditionType == "Modifies" && patternType == "pattern") {
 
-            vector<string> arr1;
+            /*vector<string> arr1;
             Database::getModifies_OutputStmt(rightArg, arr1);
             vector<string> arr2;
             Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
@@ -228,7 +277,9 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
             if (!commonStrings.empty()) {
                 string res = QueryProcessor::concatenateWithCommas(commonStrings);
                 Database::getCombo_Modifies_Pattern_OutputProcedure(res, databaseResults);
-            }
+            }*/
+
+            QueryProcessor::getModifies_Pattern_OutputProcedure(rightArg,patternLeftArg,patternRightArg,isSubexpression,databaseResults);
         }
     }
 
@@ -246,10 +297,6 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
             if (conditionType == "Modifies") {
                 Database::getModifies_OutputVar(leftArg, databaseResults);
             }
-            // Select v1 such that Uses (14, v1) 
-            /*else if (conditionType == "Uses") {
-                Database::getUses_OutputVar(queryToExecute.condition.leftArg, databaseResults);
-            }*/
             else
                 Database::getVariables(databaseResults);
         }
@@ -259,14 +306,7 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
 
 
         else if (selectType == "s") {
-
-            // iteration 2: stmt s; Select s such that Follows* (6, s)
-            if (conditionType == "Follows") {
-                /*if (isT) {
-                    Database::FollowsT(leftArg, databaseResults);
-                }*/
-            }
-            else if (conditionType == "Parent") {
+            if (conditionType == "Parent") {
                 if (isT) {
                     Database::getParentT_OutputStmt(leftArg, databaseResults);
                 }
@@ -285,9 +325,6 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
                     Database::getParentT_OutputAssign(leftArg, databaseResults);
                 }
             }
-            /*else if (conditionType == "Uses") {
-                Database::getUses_OutputStmt(rightArg, databaseResults);
-            }*/
             else if (patternType == "pattern") {
                 Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, databaseResults);
             }
