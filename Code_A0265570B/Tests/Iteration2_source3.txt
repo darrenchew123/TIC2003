@@ -13,3 +13,10 @@ procedure countDigits {
 
     print count;
 }
+
+procedure subtract {
+    read total;
+    read count;
+    read number;
+    result = total - count - number;
+}

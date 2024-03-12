@@ -12,3 +12,9 @@ procedure factorial {
         print result;
     }
 }
+
+procedure multiply {
+    result = 1;
+    x = 10;
+    res = result * x;
+}

@@ -14,3 +14,10 @@ procedure isPrime {
         print prime;
     }
 }
+
+procedure addition {
+    read prime;
+    read i;
+    sum = prime + i;
+    print sum;
+}

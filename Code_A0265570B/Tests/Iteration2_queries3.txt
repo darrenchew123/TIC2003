@@ -3,15 +3,15 @@ variable v;
 Select v such that Modifies(7, v)
 count
 5000
-2 - Modifies
-variable v; 
-Select v such that Modifies(1, v)
-number
-5000
 3 - Modifies
 procedure p; 
 Select p such that Modifies(p, "number")
-countDigits
+countDigits, subtract
+5000
+3 - Modifies
+procedure p; 
+Select p such that Modifies(p, "total")
+subtract
 5000
 4 - Parent
 stmt s;
@@ -35,8 +35,8 @@ Select a pattern a ( _ , "0")
 5000
 8 - Pattern
 assign a;
-Select a pattern a ( _ , _"number"_)
-6
+Select a pattern a ( _ , _"count"_)
+7, 13
 5000
 9 - Pattern
 assign a;
@@ -60,8 +60,8 @@ countDigits
 5000
 13 - Modifies + Pattern
 Procedure p; 
-Select p such that Modifies (p, "number") pattern a ("number", _)
-countDigits
+Select p such that Modifies (p, "result") pattern a (_, _"count"_)
+subtract
 5000
 14 - Modifies + Pattern
 Procedure p; 
