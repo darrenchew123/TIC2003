@@ -395,6 +395,11 @@ void Database::getParentT_OutputStmt(string leftArg, vector<string>& results) {
             for (vector<string> dbRow : dbResults) {
                 q.push(dbRow.at(0));
             }
+
+            if (!visited.count(curr)) {
+                results.push_back(curr);
+                visited.insert(curr);
+            }
         }
         else {
             if (!visited.count(curr)) {

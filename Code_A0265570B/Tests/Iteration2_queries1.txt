@@ -16,12 +16,12 @@ isPrime, addition
 4 - Parent*
 if i; stmt s;
 Select s such that Parent* (i, s)
-3, 4, 5, 8, 9, 10
+3, 4, 5, 6, 7, 8, 9, 10
 5000
 5 - Parent*
 while w; stmt s;
 Select s such that Parent* (w, s)
-8, 9
+7, 8, 9
 5000
 6 - Parent*
 if i; assign a;

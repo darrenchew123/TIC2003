@@ -24,9 +24,9 @@ Select s such that Parent* (w, s)
 6, 7
 5000
 6 - Parent*
-if i; assign a;
-Select a such that Parent* (i, a)
-4, 6, 7
+if i; stmt s;
+Select s such that Parent* (i, s)
+4, 5, 6, 7
 5000
 7 - Pattern
 assign a;
