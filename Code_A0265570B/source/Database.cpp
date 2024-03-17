@@ -383,7 +383,7 @@ void Database::getParentT_OutputStmt(string leftArg, vector<string>& results) {
     //considering all parent type
     else if (leftArg == "_") {
         dbResults.clear();
-        string getChildrenCodeline = "SELECT p.childStatementCodeLine FROM ParentChildRelation;";
+        string getChildrenCodeline = "SELECT childStatementCodeLine FROM ParentChildRelation;";
         sqlite3_exec(dbConnection, getChildrenCodeline.c_str(), callback, 0, &errorMessage);
         for (vector<string> dbRow : dbResults) {
             q.push(dbRow.at(0));
