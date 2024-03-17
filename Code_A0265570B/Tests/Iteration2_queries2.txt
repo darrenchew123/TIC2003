@@ -4,9 +4,9 @@ Select v such that Modifies(2, v)
 result
 5000
 2 - Modifies
-variable v; 
-Select v such that Modifies(1, v)
-n
+while w; 
+Select w such that Modifies(w, "n")
+5
 5000
 3 - Modifies
 procedure p; 
@@ -59,14 +59,14 @@ Select p such that Modifies (p, "res") pattern a (_, _"result"_)
 multiply
 5000
 13 - Modifies + Pattern
-Procedure p; 
-Select p such that Modifies (p, "result") pattern a ("result", "1")
-factorial, multiply
+assign a; variable v; 
+Select a such that Modifies (a, v) pattern a (v, _"n"_)
+6, 7
 5000
 14 - Modifies + Pattern
-Procedure p; 
-Select p such that Modifies (p, "n") pattern a ("n", _"1"_)
-factorial
+assign a; variable v; 
+Select v such that Modifies (a, v) pattern a1 (v, _"n"_)
+result, n
 5000
 15 - Parent* + Pattern
 while w; assign a;

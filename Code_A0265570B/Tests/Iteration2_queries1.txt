@@ -24,8 +24,8 @@ Select s such that Parent* (w, s)
 7, 8, 9
 5000
 6 - Parent*
-if i; assign a;
-Select a such that Parent* (i, a)
+assign a;
+Select a such that Parent* (_, a)
 4, 5, 8, 9
 5000
 7 - Pattern

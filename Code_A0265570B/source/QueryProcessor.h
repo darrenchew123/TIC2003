@@ -63,4 +63,10 @@ public:
     void getParentT_Pattern_OutputAssign(string& leftArg, const string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults);
 
     void getModifies_Pattern_OutputProcedure(string& rightArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults);
+
+    void getModifies_Pattern_OutputAssign(string& patternRightArg, bool isSubexpression, vector<string>& databaseResults);
+
+    void getModifies_Pattern_OutputVar(string& patternRightArg, bool isSubexpression, vector<string>& databaseResults);
+
+    void getModifies_OutputParents(string& rightArg, string& selectType, vector<string>& databaseResults);
 };

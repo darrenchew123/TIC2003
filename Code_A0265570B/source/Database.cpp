@@ -380,6 +380,15 @@ void Database::getParentT_OutputStmt(string leftArg, vector<string>& results) {
             q.push(dbRow.at(0));
         }
     }
+    //considering all parent type
+    else if (leftArg == "_") {
+        dbResults.clear();
+        string getChildrenCodeline = "SELECT p.childStatementCodeLine FROM ParentChildRelation;";
+        sqlite3_exec(dbConnection, getChildrenCodeline.c_str(), callback, 0, &errorMessage);
+        for (vector<string> dbRow : dbResults) {
+            q.push(dbRow.at(0));
+        }
+    }
 
     while (!q.empty()) {
 
@@ -562,12 +571,54 @@ void Database::getXTypeOfParents_OutputStmt(string selectType, vector<string>& r
     postProcessDbResults(results, 0);
 }
 
+void Database::getModifies_OutputParents(string selectType, string ParentLines, vector<string>& results) {
+    
+    dbResults.clear();
+
+    string parentType;
+
+    if (selectType == "w") {
+        parentType = "while";
+    }
+    else if (selectType == "i") {
+        parentType = "if";
+    }
+
+    string getModifies_OutputParentsSQL = "SELECT DISTINCT s.codeLine FROM Statement s JOIN ParentChildRelation p ON s.codeLine = p.parentStatementCodeLine WHERE s.statementType = '"
+                                            + parentType + "' AND s.codeLine IN ("
+                                            + ParentLines + ");";
+    sqlite3_exec(dbConnection, getModifies_OutputParentsSQL.c_str(), callback, 0, &errorMessage);
+
+    postProcessDbResults(results, 0);
+    
+}
+
 void Database::getCombo_Modifies_Pattern_OutputProcedure(string res, vector<string>& results) {
     dbResults.clear();
 
     string getCombo_Modifies_Pattern_OutputProcedureSQL = "SELECT DISTINCT procedureName FROM Statement WHERE codeLine in ("
         + res + ");";
     sqlite3_exec(dbConnection, getCombo_Modifies_Pattern_OutputProcedureSQL.c_str(), callback, 0, &errorMessage);
+
+    postProcessDbResults(results, 0);
+}
+
+void Database::getCombo_Modifies_Pattern_OutputAssign(string res, vector<string>& results) {
+    dbResults.clear();
+
+    string getCombo_Modifies_Pattern_OutputAssignSQL = "SELECT statementCodeLine FROM Modifies WHERE statementCodeLine in ("
+        + res + "); ";
+    sqlite3_exec(dbConnection, getCombo_Modifies_Pattern_OutputAssignSQL.c_str(), callback, 0, &errorMessage);
+
+    postProcessDbResults(results, 0);
+}
+
+void Database::getCombo_Modifies_Pattern_OutputVar(string res, vector<string>& results) {
+    dbResults.clear();
+
+    string getCombo_Modifies_Pattern_OutputVarSQL = "SELECT variableName FROM Modifies WHERE statementCodeLine in ("
+        + res + "); ";
+    sqlite3_exec(dbConnection, getCombo_Modifies_Pattern_OutputVarSQL.c_str(), callback, 0, &errorMessage);
 
     postProcessDbResults(results, 0);
 }

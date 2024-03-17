@@ -57,6 +57,8 @@ public:
 
     static void getModifies_OutputStmt(string rightArg, vector<string>& results);
 
+    static void getModifies_OutputParents(string selectType, string ParentLines, vector<string>& results);
+
     static void getModifies_OutputProcedures(string rightArg, vector<string>& results);
 
     //static void getUses_OutputVar(string leftArg, vector<string>& results);
@@ -78,6 +80,10 @@ public:
     static void getXTypeOfParents_OutputStmt(string selectType, vector<string> &results);
 
     static void getCombo_Modifies_Pattern_OutputProcedure(string res, vector<string>& results);
+
+    static void getCombo_Modifies_Pattern_OutputAssign(string res, vector<string>& results);
+
+    static void getCombo_Modifies_Pattern_OutputVar(string res, vector<string>& results);
 
 private:
     static sqlite3* dbConnection;
