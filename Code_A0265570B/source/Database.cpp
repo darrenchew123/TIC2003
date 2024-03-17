@@ -159,8 +159,18 @@ void Database::getStatements(vector<string>& results) {
 }
 
 // method to get all the statements line from the database by statement type eg. print, push
-void Database::getStatementType(const string& statementType, vector<string>& results) {
+void Database::getStatementType(const string& selectType, vector<string>& results) {
     dbResults.clear();
+
+    string statementType;
+
+    if (selectType == "a")
+        statementType = "assign";
+    else if (selectType == "p")
+        statementType = "print";
+    else if (selectType == "r")
+        statementType = "read";
+
     string getStatementsSQL = "SELECT codeLine FROM Statement WHERE statementType ='"
         + statementType + "';";
     sqlite3_exec(dbConnection, getStatementsSQL.c_str(), callback, 0, &errorMessage);

@@ -11,7 +11,7 @@ currentTemp, recordedTemp, defaultSetting
 3 - Constant
 constant c;
 Select c
-3
+5
 5000
 4 - Assignment
 assign a;

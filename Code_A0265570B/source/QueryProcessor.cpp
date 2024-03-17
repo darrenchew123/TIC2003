@@ -258,6 +258,7 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
      output.push_back(queryToExecute.pattern.patternRightArg);*/
 
     string selectType = queryToExecute.selectType;
+    string declaredVar = queryToExecute.declaredVar;
     string conditionType = queryToExecute.condition.type;
     bool isT = queryToExecute.condition.isT;
     string leftArg = queryToExecute.condition.leftArg;
@@ -301,6 +302,9 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
             if (conditionType == "Modifies") {
                 Database::getModifies_OutputProcedures(rightArg, databaseResults);
             }
+            else if (declaredVar == "pr") {
+                Database::getStatementType(selectType, databaseResults);
+            }
             else
                 Database::getProcedures(databaseResults);
         }
@@ -342,9 +346,6 @@ void QueryProcessor::evaluate(string query, vector<string>& output) {
             }
             else
                 Database::getStatementType(selectType, databaseResults);
-        }
-        else if (selectType == "p") {
-            Database::getStatementType(selectType, databaseResults);
         }
         else if (selectType == "r") {
             Database::getStatementType(selectType, databaseResults);
