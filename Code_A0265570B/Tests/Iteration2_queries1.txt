@@ -44,27 +44,27 @@ Select a pattern a ( "prime" , "0")
 8
 5000
 10 - Modifies + Pattern
-Procedure p;
+procedure p;
 Select p such that Modifies (p, "prime") pattern a ("prime", "0")
 isPrime
 5000
 11 - Modifies + Pattern
-Procedure p;
+procedure p;
 Select p such that Modifies (p, "prime") pattern a (_, "1")
 isPrime
 5000
 12 - Modifies + Pattern
-Procedure p;
+procedure p;
 Select p such that Modifies (p, "i") pattern a ("i", "2")
 isPrime
 5000
 13 - Modifies + Pattern
-Procedure p;
+procedure p;
 Select p such that Modifies (p, "sum") pattern a (_, "prime + i")
 addition
 5000
 14 - Modifies + Pattern
-Procedure p;
+procedure p;
 Select p such that Modifies (p, "i") pattern a (_, "i + 1")
 isPrime
 5000

@@ -44,17 +44,17 @@ Select a pattern a ( "result" , _)
 2, 6, 10
 5000
 10 - Modifies + Pattern
-Procedure p; 
+procedure p; 
 Select p such that Modifies (p, "n") pattern a ("n", "n - 1")
 factorial
 5000
 11 - Modifies + Pattern
-Procedure p; 
+procedure p; 
 Select p such that Modifies (p, "n") pattern a (_, _"n"_)
 factorial
 5000
 12 - Modifies + Pattern
-Procedure p; 
+procedure p; 
 Select p such that Modifies (p, "res") pattern a (_, _"result"_)
 multiply
 5000

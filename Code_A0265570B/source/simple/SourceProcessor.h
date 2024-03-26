@@ -1,0 +1,20 @@
+#pragma once
+#include <sstream>
+#include <fstream>
+#include <vector>
+#include<iostream>
+#include<stack>
+#include "../db/Database.h"
+#include "../utils/Tokenizer.h"
+#include "ProcedureProcessing.h"
+#include "ModifiesProcessing.h"
+#include  "StatementInfo.h"
+
+
+using namespace std;
+
+class SourceProcessor {
+public:
+    void process(string& process);
+
+};

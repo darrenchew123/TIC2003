@@ -1,6 +1,4 @@
 #include "InfixToPostfix.h"
-#include <stack>
-#include <string>
 
 bool InfixToPostfix::isOperator(char c) {
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '%';

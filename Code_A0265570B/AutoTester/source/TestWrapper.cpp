@@ -1,7 +1,10 @@
 #include "TestWrapper.h"
-#include "../../source/SourceProcessor.h"
-#include "../../source/Database.h"
-#include "../../source/QueryProcessor.h"
+#include "../../source/simple/SourceProcessor.h"
+#include "../../source/db/Database.h"
+#include "../../source/pql/QueryProcessor.h"
+#include "../../source/pql/QueryEvaluator.h"
+#include "../../source/pql/Query.h"
+#include "../../source/pql/QueryParser.h"
 
 // implementation code of WrapperFactory - do NOT modify the next 5 lines
 AbstractWrapper* WrapperFactory::wrapper = 0;
@@ -36,7 +39,7 @@ void TestWrapper::evaluate(std::string query, std::list<std::string>& results){
 	vector<string> output;
 
 	// call the query processor to process a single query
-	QueryProcessor qp;
+	QueryEvaluator qp;
 	qp.evaluate(query, output);
 
 	// convert a vector of results to a list of results
