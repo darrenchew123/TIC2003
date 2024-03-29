@@ -41,7 +41,9 @@ struct Query {
 
     //multi selection types eg. Select <w1, w2, a1, a2> -> return while loops and assignments
     unordered_set<string> multiSelectType; // {while, if, assign}
+    unordered_set<string> multiSelectVar; // {w1, w2, a1, a2}
     string selectType; // while
+    string selectVar; // s1
 };
 
 //#endif //QUERY_H

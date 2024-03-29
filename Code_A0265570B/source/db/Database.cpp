@@ -422,15 +422,30 @@ void Database::getParentT_OutputAssign(string leftArg, vector<string> &results) 
     results = commonStrings;
 }
 
-void Database::getParent_OutputStmt(string RightArg, vector<string>& results) {
+void Database::getParent_OutputStmt(string selectVar, string leftArg, string rightArg, vector<string>& results) {
 
     dbResults.clear();
 
-    string getParent_OutputStmtSQL = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE childStatementCodeLine ='"
-        + RightArg + "';";
+    string getParent_OutputStmtSQL;
 
-    sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
+    //test case: Select s1 such that Parent(s, s1)
+    if (leftArg == selectVar) { // LHS = selectVar -> return parents
+        getParent_OutputStmtSQL = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation;";
 
+        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
+    }
+    else if (rightArg == selectVar) { // RHS = selectVar -> return children
+        getParent_OutputStmtSQL = "SELECT childStatementCodeLine FROM ParentChildRelation;";
+
+        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
+    }
+    
+    else {
+        getParent_OutputStmtSQL = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE childStatementCodeLine ='"
+            + rightArg + "';";
+
+        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
+    }
     postProcessDbResults(results, 0);
 }
 

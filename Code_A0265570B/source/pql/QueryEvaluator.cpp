@@ -45,6 +45,7 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
     }*/
 
     string selectType = queryToExecute.selectType;
+    string selectVar = queryToExecute.selectVar;
 
     string conditionType;
     bool isT = 0;
@@ -76,16 +77,16 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
 
     //Determine if query is a combo or simple type and process
     if (!conditionType.empty() && !patternType.empty()) {
-        processComboQuery(selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults);
+        processComboQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults);
     } else {
-        processSimpleQuery(selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults);
+        processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults);
     }
 
     output.insert(output.end(), databaseResults.begin(), databaseResults.end());
 }
 //
 // Process combo queries
-void QueryEvaluator::processComboQuery(string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
+void QueryEvaluator::processComboQuery(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
     if ((selectType == "while" || selectType == "if") && conditionType == "Parent" && isT && patternType == "pattern") {
         QueryProcessor::getParentT_Pattern_OutputParentT(leftArg, patternLeftArg, patternRightArg, isSubexpression, selectType, databaseResults);
     }
@@ -110,7 +111,7 @@ void QueryEvaluator::processComboQuery(string selectType, string conditionType, 
 
 
 // process simple queries
-void QueryEvaluator::processSimpleQuery(string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
+void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
     if (selectType == "procedure") {
         if (conditionType == "Modifies") {
             Database::getModifies_OutputProcedures(rightArg, databaseResults);
@@ -119,7 +120,12 @@ void QueryEvaluator::processSimpleQuery(string selectType, string conditionType,
             Database::getProcedures(databaseResults);
     }
     else if (selectType == "print") {
-        Database::getStatementType(selectType, databaseResults);
+        if (conditionType == "Modifies") {
+            databaseResults.clear();
+        }
+        else {
+            Database::getStatementType(selectType, databaseResults);
+        }
     }
     else if (selectType == "variable") {
         if (conditionType == "Modifies") {
@@ -137,7 +143,8 @@ void QueryEvaluator::processSimpleQuery(string selectType, string conditionType,
                 Database::getParentT_OutputStmt(leftArg, databaseResults);
             }
             else {
-                Database::getParent_OutputStmt(rightArg, databaseResults);
+                //Select s1 such that Parent(s, s1)
+                Database::getParent_OutputStmt(selectVar, leftArg, rightArg, databaseResults);
             }
         }
         else {

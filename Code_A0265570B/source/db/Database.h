@@ -64,7 +64,7 @@ public:
 
     static void getStatements_OutputAssign(vector<string>& results);
 
-    static void getParent_OutputStmt(string RightArg, vector<string>& results);
+    static void getParent_OutputStmt(string selectVar, string leftArg, string rightArg, vector<string>& results);
 
     static void getPattern_OutputStmt(string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& results);
 

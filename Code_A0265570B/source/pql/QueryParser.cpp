@@ -104,8 +104,10 @@ Query QueryParser::parser(const vector<string>& tokens) {
                 }
             }
             else {
-                if (query.declaredVariables.count(tokens[i]))
+                if (query.declaredVariables.count(tokens[i])) {
                     query.selectType = query.declaredVariables[tokens[i]];
+                    query.selectVar = tokens[i];
+                }
             }
 
         }
