@@ -200,7 +200,7 @@ void Database::insertConstant(int statementCodeLine, int constantValue) {
 void Database::getConstants(vector<string>& results) {
     dbResults.clear();
 
-    string getConstantsSQL = "SELECT constantValue FROM Constant;";
+    string getConstantsSQL = "SELECT DISTINCT constantValue FROM Constant;";
     sqlite3_exec(dbConnection, getConstantsSQL.c_str(), callback, 0, &errorMessage);
 
     postProcessDbResults(results, 0);

@@ -122,4 +122,3 @@ void QueryProcessor::getModifies_OutputParents(string& rightArg, string& selectT
         Database::getModifies_OutputParents(selectType, ParentLines, databaseResults);
     }
 }
-
