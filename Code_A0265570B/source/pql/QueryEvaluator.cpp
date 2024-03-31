@@ -160,6 +160,11 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
             if (isT) {
                 Database::getParentT_OutputAssign(leftArg, databaseResults);
             }
+            else {
+                if (leftArg == "_") {
+                   Database::getParentT_OutputAssign(leftArg, databaseResults);
+                }
+            }
         }
         else if (patternType == "pattern") {
             Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, databaseResults);
