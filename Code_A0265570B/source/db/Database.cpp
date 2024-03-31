@@ -436,8 +436,13 @@ void Database::getParent_OutputStmt(string selectVar, string leftArg, string rig
     }*/
 
     //test case: Select s1 such that Parent(s, s1)
+    //Select s such that Parent(s, _)
+    if (leftArg == selectVar && rightArg == "_") {
+        getParent_OutputStmtSQL = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation;";
 
-    if (leftArg == selectVar) { // LHS = selectVar -> return parents
+        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
+    }
+    else if (leftArg == selectVar) { // LHS = selectVar -> return parents
         getParent_OutputStmtSQL = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation;";
 
         sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
