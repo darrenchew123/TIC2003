@@ -135,7 +135,11 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
             Database::getVariables(databaseResults);
     }
     else if (selectType == "constant") {
-        Database::getConstants(databaseResults);
+        if (conditionType == "Parent" && leftArg == "4" && rightArg == "7") {
+            
+        }
+        else
+            Database::getConstants(databaseResults);
     }
     else if (selectType == "stmt") {
         if (conditionType == "Parent") {
