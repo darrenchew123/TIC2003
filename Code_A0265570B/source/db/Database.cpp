@@ -429,11 +429,11 @@ void Database::getParent_OutputStmt(string selectVar, string leftArg, string rig
     string getParent_OutputStmtSQL;
 
     //test case: Select s1 such that Parent(s, s1)
- /*   if (leftArg == selectVar && rightArg != selectVar) {
+    if (leftArg == selectVar && rightArg != selectVar) {
         getParent_OutputStmtSQL = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE childStatementCodeLine ='"
             + rightArg + "';";
         sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
-    }*/
+    }
 
     //test case: Select s1 such that Parent(s, s1)
     //Select s such that Parent(s, _)
@@ -442,6 +442,13 @@ void Database::getParent_OutputStmt(string selectVar, string leftArg, string rig
 
         sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
+    if (leftArg == selectVar && rightArg != "_") {
+        getParent_OutputStmtSQL = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE childStatementCodeLine ='"
+            + rightArg + "';";
+
+        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
+    }
+    //test case: Select s such that Parent(s, s1)
     else if (leftArg == selectVar) { // LHS = selectVar -> return parents
         getParent_OutputStmtSQL = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation;";
 
@@ -452,6 +459,7 @@ void Database::getParent_OutputStmt(string selectVar, string leftArg, string rig
             + leftArg + "';";
         sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
+    //test case: Select s1 such that Parent(s, s1)
     else if (rightArg == selectVar) { // RHS = selectVar -> return children
         getParent_OutputStmtSQL = "SELECT childStatementCodeLine FROM ParentChildRelation;";
 
