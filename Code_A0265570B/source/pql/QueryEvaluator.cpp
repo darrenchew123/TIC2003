@@ -147,6 +147,9 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
                 Database::getParent_OutputStmt(selectVar, leftArg, rightArg, databaseResults);
             }
         }
+        else if (conditionType == "Modifies") {
+            Database::getModifies_OutputStmt(rightArg, databaseResults);
+        }
         else {
             Database::getStatements(databaseResults);
         }
