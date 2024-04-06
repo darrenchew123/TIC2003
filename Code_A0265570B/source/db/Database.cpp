@@ -730,3 +730,265 @@ void Database::getCombo_Modifies_Pattern_OutputVar(string res, vector<string>& r
 }
 
 
+void Database::getParent(string selectType, string leftArg, string rightArg, vector<string>& results, Query query) {
+
+    dbResults.clear();
+    string getParentSQL;
+
+    bool islhsSyn = 0, isrhsSyn = 0;
+    string lhsSynType, rhsSynType;
+
+    if (query.declaredVariables.count(leftArg)) {
+        islhsSyn = 1;
+        lhsSynType = query.declaredVariables[leftArg];
+    }
+    if (query.declaredVariables.count(rightArg)) {
+        isrhsSyn = 1;
+        rhsSynType = query.declaredVariables[rightArg];
+    }
+
+    cout << islhsSyn << endl;
+    cout << isrhsSyn << endl;
+    cout << lhsSynType << endl;
+    cout << rhsSynType << endl;
+
+    //lhs wildcard 
+    if (leftArg == "_") {
+        cout << "lhs wildcard" << endl;
+        if (isrhsSyn) { //rhs child syn
+            getParentSQL = "SELECT Statement.codeLine FROM(SELECT childStatementCodeLine FROM ParentChildRelation UNION SELECT childStatementCodeLine FROM AncestorRelation) AS A JOIN Statement ON A.childStatementCodeLine = Statement.codeLine WHERE Statement.statementType ='"
+                + selectType + "'; ";
+        }
+        else if (rightArg == "_") {
+            cout << "rhs wildcard" << endl;
+            if (selectType == "constant") {
+                getParentSQL = "SELECT DISTINCT constantValue FROM Constant";
+            }
+            else if (selectType == "variable") {
+                getParentSQL = "SELECT DISTINCT variableName FROM Variable";
+            }
+            else if (selectType == "stmt") {
+                getParentSQL = "SELECT DISTINCT CodeLine FROM Statement";
+            }
+            else {
+                Database::getStatementType(selectType, results);
+                return;
+            }
+        }
+        else { //rhs stmtline
+            Database::getStatementType(selectType, results);
+            return;
+        }
+    }
+    else if (islhsSyn) { //lhs is syn
+        cout << "lhs is syn" << endl;
+        if (rightArg == "_") {// rhs is wildcard
+            cout << "rhs is wildcard" << endl;
+            if (query.declaredVariables[leftArg] == "stmt") {
+                getParentSQL = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation;";
+            }
+            else {
+                getParentSQL = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation INTERSECT SELECT codeLine FROM Statement WHERE statementType = '"
+                                +selectType+"';";
+            }
+        }
+        else if (isrhsSyn) { //rhs is syn
+            cout << "rhs is syn" << endl;
+            if (lhsSynType == selectType) { //return parent
+                cout << "return parent" << endl;
+                getParentSQL = "SELECT P.parentStatementCodeLine  FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine WHERE S1.statementType = '"
+                    + lhsSynType + "' AND S2.statementType = '"
+                    + rhsSynType + "';";
+            }
+            else if (rhsSynType == selectType) {//return child
+                cout << "return child" << endl;
+                getParentSQL = "SELECT P.childStatementCodeLine FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine WHERE S1.statementType = '"
+                    + lhsSynType + "' AND S2.statementType = '"
+                    + rhsSynType + "';";
+            }
+        }
+        else {
+            cout << "rhs stmt line" << endl;
+            if (lhsSynType == selectType) {
+                cout << "return parent" << endl;
+                getParentSQL = "SELECT P.parentStatementCodeLine FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine WHERE S1.statementType = '"
+                    + lhsSynType + "' AND S2.codeLine = '"
+                    + rightArg + "';";
+            }
+            else if (rhsSynType == selectType) {
+                cout << "return child" << endl;
+                getParentSQL = "SELECT P.childStatementCodeLine FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine WHERE S1.statementType = '"
+                    + lhsSynType + "' AND S2.codeLine = '"
+                    + rightArg + "';";
+            }
+
+        }
+    }
+    // lhs stmt line
+    else {
+        cout << "lhs stmt line" << endl;
+        if (rightArg == "_") {
+            Database::getStatementType(selectType, results);
+            return;
+        }
+        else if (isrhsSyn) {
+            cout << "rhs syn" << endl;
+            getParentSQL = "SELECT childStatementCodeLine FROM ParentChildRelation WHERE parentStatementCodeLine = '"
+                +leftArg+"';";
+        }
+        else {
+            cout << "rhs stmt line" << endl;
+            string getParent = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE parentStatementCodeLine = '"
+                +leftArg+"' AND childStatementCodeLine = '"
+                +rightArg+"';";
+            sqlite3_exec(dbConnection, getParent.c_str(), callback, 0, &errorMessage);
+
+
+            if (!dbResults.empty()) {
+                cout << "true" << endl;
+                if (selectType == "constant") {
+                    getParentSQL = "SELECT DISTINCT constantValue FROM Constant";
+                }
+                else if (selectType == "variable") {
+                    getParentSQL = "SELECT DISTINCT variableName FROM Variable";
+                }
+                else if (selectType == "stmt") {
+                    getParentSQL = "SELECT DISTINCT CodeLine FROM Statement";
+                }
+            }
+            dbResults.clear();
+        }
+    }
+    sqlite3_exec(dbConnection, getParentSQL.c_str(), callback, 0, &errorMessage);
+    
+    postProcessDbResults(results, 0);
+}
+
+void Database::getParentT(string selectType, string leftArg, string rightArg, vector<string>& results, Query query) {
+    dbResults.clear();
+    string getParentSQL;
+
+    bool islhsSyn = 0, isrhsSyn = 0;
+    string lhsSynType, rhsSynType;
+
+    if (query.declaredVariables.count(leftArg)) {
+        islhsSyn = 1;
+        lhsSynType = query.declaredVariables[leftArg];
+    }
+    if (query.declaredVariables.count(rightArg)) {
+        isrhsSyn = 1;
+        rhsSynType = query.declaredVariables[rightArg];
+    }
+
+    cout << islhsSyn << endl;
+    cout << isrhsSyn << endl;
+    cout << lhsSynType << endl;
+    cout << rhsSynType << endl;
+
+    //lhs wildcard 
+    if (leftArg == "_") {
+        cout << "lhs wildcard" << endl;
+        if (isrhsSyn) { //rhs child syn
+            getParentSQL = "SELECT Statement.codeLine FROM(SELECT childStatementCodeLine FROM ParentChildRelation UNION SELECT childStatementCodeLine FROM AncestorRelation) AS A JOIN Statement ON A.childStatementCodeLine = Statement.codeLine WHERE Statement.statementType ='"
+                + selectType + "'; ";
+        }
+        else if (rightArg == "_") {
+            cout << "rhs wildcard" << endl;
+            if (selectType == "constant") {
+                getParentSQL = "SELECT DISTINCT constantValue FROM Constant";
+            }
+            else if (selectType == "variable") {
+                getParentSQL = "SELECT DISTINCT variableName FROM Variable";
+            }
+            else if (selectType == "stmt") {
+                getParentSQL = "SELECT DISTINCT CodeLine FROM Statement";
+            }
+            else {
+                Database::getStatementType(selectType, results);
+                return;
+            }
+        }
+        else { //rhs stmtline
+            Database::getStatementType(selectType, results);
+            return;
+        }
+    }
+    else if (islhsSyn) { //lhs is syn
+        cout << "lhs is syn" << endl;
+        if (rightArg == "_") {// rhs is wildcard
+            cout << "rhs is wildcard" << endl;
+            if (query.declaredVariables[leftArg] == "stmt") {
+                getParentSQL = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation;";
+            }
+            else {
+                getParentSQL = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation INTERSECT SELECT codeLine FROM Statement WHERE statementType = '"
+                    + selectType + "';";
+            }
+        }
+        else if (isrhsSyn) { //rhs is syn
+            cout << "rhs is syn" << endl;
+            if (lhsSynType == selectType) { //return parent
+                cout << "return parent" << endl;
+                getParentSQL = "SELECT DISTINCT P.parentStatementCodeLine FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine JOIN AncestorRelation A ON P.parentStatementCodeLine = A.ancestorStatementCodeLine WHERE S1.statementType = '"
+                                +lhsSynType+"' AND S2.statementType = '"
+                                +rhsSynType+"';";
+            }
+            else if (rhsSynType == selectType) {//return child
+                cout << "return child" << endl;
+                getParentSQL = "SELECT DISTINCT P.childStatementCodeLine FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine JOIN AncestorRelation A ON P.parentStatementCodeLine = A.ancestorStatementCodeLine WHERE S1.statementType = '"
+                    + lhsSynType + "' AND S2.statementType = '"
+                    + rhsSynType + "';";
+            }
+        }
+        else {
+            cout << "rhs is stmt" << endl;
+            getParentSQL = "SELECT P.parentStatementCodeLine AS ParentLine FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine WHERE S1.statementType = '"
+                +lhsSynType+"' AND S2.codeLine = '"
+                +rightArg+"' UNION SELECT A.ancestorStatementCodeLine AS ParentLine FROM AncestorRelation A JOIN Statement S1 ON A.ancestorStatementCodeLine = S1.codeLine JOIN Statement S3 ON A.childStatementCodeLine = S3.codeLine WHERE S1.statementType = '"
+                +lhsSynType+"' AND S3.codeLine = '"
+                +rightArg+"';";
+        }
+    }
+    // lhs stmt line
+    else {
+        cout << "lhs stmt line" << endl;
+        if (rightArg == "_") {
+            Database::getStatementType(selectType, results);
+            return;
+        }
+        else if (isrhsSyn) {
+            cout << "rhs syn" << endl;
+            if (rhsSynType == selectType) {
+                getParentSQL = "SELECT P.childStatementCodeLine AS ChildCodeLine FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine WHERE S1.codeLine = '"
+                    + leftArg + "' AND S2.statementType = '"
+                    + rhsSynType + "' UNION SELECT A.childStatementCodeLine FROM AncestorRelation A JOIN Statement S1 ON A.ancestorStatementCodeLine = S1.codeLine JOIN Statement S3 ON A.childStatementCodeLine = S3.codeLine WHERE S1.codeLine = '"
+                    + leftArg + "' AND S3.statementType = '"
+                    + rhsSynType + "';";
+            }
+        }
+        else {
+            cout << "rhs stmt line" << endl;
+            string getGrandParent = "SELECT ancestorStatementCodeLine FROM AncestorRelation WHERE ancestorStatementCodeLine = '"
+                + leftArg + "' AND childStatementCodeLine = '"
+                + rightArg + "';";
+            sqlite3_exec(dbConnection, getGrandParent.c_str(), callback, 0, &errorMessage);
+
+            if (!dbResults.empty()) {
+                cout << "true" << endl;
+                if (selectType == "constant") {
+                    getParentSQL = "SELECT DISTINCT constantValue FROM Constant";
+                }
+                else if (selectType == "variable") {
+                    getParentSQL = "SELECT DISTINCT variableName FROM Variable";
+                }
+                else if (selectType == "stmt") {
+                    getParentSQL = "SELECT DISTINCT CodeLine FROM Statement";
+                }
+            }
+            dbResults.clear();
+        }
+    }
+    sqlite3_exec(dbConnection, getParentSQL.c_str(), callback, 0, &errorMessage);
+
+    postProcessDbResults(results, 0);
+}

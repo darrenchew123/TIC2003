@@ -1,3 +1,5 @@
+#pragma once
+
 #include "TestWrapper.h"
 #include "../../source/simple/SourceProcessor.h"
 #include "../../source/db/Database.h"
@@ -5,6 +7,8 @@
 #include "../../source/pql/QueryEvaluator.h"
 #include "../../source/pql/Query.h"
 #include "../../source/pql/QueryParser.h"
+
+using namespace std;
 
 // implementation code of WrapperFactory - do NOT modify the next 5 lines
 AbstractWrapper* WrapperFactory::wrapper = 0;

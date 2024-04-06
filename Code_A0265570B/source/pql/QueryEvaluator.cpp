@@ -23,11 +23,10 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
 
     Query queryToExecute = QueryParser::parser(tokens);
 
-    /*for (auto a : queryToExecute.declaredVariables) {
-        output.push_back(a.first);
-        output.push_back("type=");
-        output.push_back(a.second);
-    }*/
+    for (auto a : queryToExecute.declaredVariables) {
+        cout << a.first << endl;
+        cout << a.second << endl;
+    }
 
     /*for (Condition c : queryToExecute.conditions) {
         output.push_back("cond:");
@@ -120,6 +119,16 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
         if (conditionType == "Modifies") {
             databaseResults.clear();
         }
+        else if (conditionType == "Parent") {
+            if (isT) {
+                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+            }
+
+            else {
+                cout << "Parent" << endl;
+                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+            }
+        }
         else {
             Database::getStatementType(selectType, databaseResults);
         }
@@ -128,12 +137,26 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
         if (conditionType == "Modifies") {
             Database::getModifies_OutputVar(leftArg, databaseResults, queryToExecute);
         }
+        if (conditionType == "Parent") {
+            if (isT) {
+                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+            }
+            else {
+                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+            }
+        }
         else
             Database::getVariables(databaseResults);
     }
     else if (selectType == "constant") {
-        if (conditionType == "Parent" && leftArg == "4" && rightArg == "7") {
-            
+        if (conditionType == "Parent") {
+            if (isT) {
+                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+            }
+
+            else {
+                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+            }
         }
         else
             Database::getConstants(databaseResults);
@@ -141,12 +164,13 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
     else if (selectType == "stmt") {
         if (conditionType == "Parent") {
             if (isT) {
-                Database::getParentT_OutputStmt(leftArg, databaseResults);
+                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
+
             else {
-                //Select s1 such that Parent(s, s1)
-                Database::getParent_OutputStmt(selectVar, leftArg, rightArg, databaseResults);
+                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
+
         }
         else if (conditionType == "Modifies") {
             Database::getModifies_OutputStmt(rightArg, databaseResults,queryToExecute);
@@ -159,13 +183,14 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
     else if (selectType == "assign") {
         if (conditionType == "Parent") {
             if (isT) {
-                Database::getParentT_OutputAssign(leftArg, databaseResults);
+                Database::getParentT(selectType, leftArg, rightArg, databaseResults,queryToExecute);
             }
+
             else {
-                if (leftArg == "_") {
-                   Database::getParentT_OutputAssign(leftArg, databaseResults);
-                }
+                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
+
+    
         }
         else if (patternType == "pattern") {
             cout << "testing assign " <<endl;
@@ -175,13 +200,39 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
             Database::getStatementType(selectType, databaseResults);
     }
     else if (selectType == "read") {
-        Database::getStatementType(selectType, databaseResults);
+        if (conditionType == "Parent") {
+            if (isT) {
+                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+            }
+
+            else {
+               Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+            }
+
+        }
+        else {
+            Database::getStatementType(selectType, databaseResults);
+        }
     }
     else if (selectType == "while" || selectType == "if") {
         if (conditionType == "Modifies") {
             QueryProcessor::getModifies_OutputParents(rightArg, selectType, databaseResults,queryToExecute);
         }
-        Database::getStatementType(selectType, databaseResults);
+        else if (conditionType == "Parent") {
+            if (isT) {
+                cout << "ParentT" << endl;
+                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+            }
+
+            else {
+                cout << "Parent" << endl;
+                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+            }
+
+        }
+        else {
+            Database::getStatementType(selectType, databaseResults);
+        }
     }
 }
 

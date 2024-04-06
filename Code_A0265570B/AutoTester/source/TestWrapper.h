@@ -1,3 +1,5 @@
+//#pragma once
+
 #ifndef TESTWRAPPER_H
 #define TESTWRAPPER_H
 

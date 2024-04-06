@@ -63,7 +63,6 @@ public:
 
     static void insertCalls(const string& caller, const string& callee);
 
-
     static void getModifies_OutputVar(string codeLine, vector<string>& results, Query queryToExecute);
 
     static void getModifies_OutputStmt(string rightArg, vector<string>& results, Query queryToExecute);
@@ -93,6 +92,11 @@ public:
     static void getCombo_Modifies_Pattern_OutputVar(string res, vector<string>& results);
 
     static void getUses_OutputVar(string leftArg, vector<string>& results);
+
+    //parent
+    static void getParent(string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
+
+    static void getParentT(string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
 
 private:
     static sqlite3* dbConnection;
