@@ -13,7 +13,5 @@ class VariableProcessing {
 public:
     static void processVariable(const string& varName, const int& lineCount);
 
-    static string extractVariableName(const string& statement, const string& statementType);
-
 };
 

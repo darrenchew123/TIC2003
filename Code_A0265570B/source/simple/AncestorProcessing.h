@@ -12,7 +12,7 @@
 
 class AncestorProcessing {
 public:
-    static void processAncestor(unordered_map<int,int> parentChildMapping);
+    static void processAncestor(multimap<int,int> parentChildMapping);
 
 };
 

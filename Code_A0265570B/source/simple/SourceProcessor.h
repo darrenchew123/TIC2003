@@ -8,7 +8,10 @@
 #include "../utils/Tokenizer.h"
 #include "ProcedureProcessing.h"
 #include "ModifiesProcessing.h"
+#include "UsesProcessing.h"
+#include "CallsProcessing.h"
 #include  "StatementInfo.h"
+#include "AncestorProcessing.h"
 
 
 using namespace std;

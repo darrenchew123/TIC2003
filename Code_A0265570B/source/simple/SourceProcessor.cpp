@@ -15,6 +15,7 @@ void SourceProcessor::process(string &program) {
     stack<int> parentStack, ifStack;
     string lhs, rhs;
     vector<StatementInfo> statementInfo;
+    multimap<int,int> parentChildMapping;
     bool pendingParentPush = false;
 
 
@@ -35,7 +36,7 @@ void SourceProcessor::process(string &program) {
 
         if (inProcedure) {
             if (token != "procedure") {
-                ProcedureProcessing::processInProcedure(token, procedureName, i, lineCount, tokens, statementTypes, parentStack, expressionStack, statementInfo, ifStack, pendingParentPush);
+                ProcedureProcessing::processInProcedure(token, procedureName, i, lineCount, tokens, statementTypes, parentStack, expressionStack, statementInfo, ifStack, pendingParentPush, parentChildMapping);
             }
             if (token == "{") {
                 blockDepth++;
@@ -51,4 +52,7 @@ void SourceProcessor::process(string &program) {
 
     ExpressionProcessing::processExpression(statementInfo);
     ModifiesProcessing::processModifies(statementInfo);
+    UsesProcessing::processUses(statementInfo);
+    CallsProcessing::processCalls(statementInfo);
+    AncestorProcessing::processAncestor(parentChildMapping);
 }

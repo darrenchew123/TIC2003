@@ -9,16 +9,16 @@ bool TokenProcessing::skipTokenCheck(const string& token, int& i, const vector<s
 }
 
 // Process token to respective calls
-void TokenProcessing::delegateTokenProcessing(const string& token, const string& procedureName, int& i, int& lineCount, const vector<string>& tokens, stack<string>& statementTypes, stack<int>& parentStack, stack<bool>& expressionStack, vector<StatementInfo>& statementInfo, stack<int>& ifStack, bool& pendingParentPush) {
+void TokenProcessing::delegateTokenProcessing(const string& token, const string& procedureName, int& i, int& lineCount, const vector<string>& tokens, stack<string>& statementTypes, stack<int>& parentStack, stack<bool>& expressionStack, vector<StatementInfo>& statementInfo, stack<int>& ifStack, bool& pendingParentPush, multimap<int,int> &parentChildMapping) {
     cout << "Delegating token: " << token << ", lineCount: " << lineCount << endl;
-    if (token == "read" || token == "print" || token == "=") {
+    if (token == "read" || token == "print" || token == "=" || token == "call" ) {
         if (expressionStack.empty() || !expressionStack.top()) {
-            StatementProcessing::processReadPrintAssignment(token, statementTypes);
+            StatementProcessing::processStatementStack(token, statementTypes);
         }
     } else if (SyntaxValidator::isInteger(token)) {
         ProcessConstant::processConstant(token, lineCount);
     } else if (token == "\n") {
-        StatementProcessing::processStatement(procedureName, token, i, lineCount, tokens, statementTypes, parentStack, statementInfo,pendingParentPush);
+        StatementProcessing::processStatement(procedureName, token, i, lineCount, tokens, statementTypes, parentStack, statementInfo,pendingParentPush,parentChildMapping);
         lineCount++;
     } else if (token == "if" || token == "else" || token == "while" || token == "}") {
         ControlFlow::processControlFlow(token, statementTypes, parentStack, lineCount, ifStack,pendingParentPush);

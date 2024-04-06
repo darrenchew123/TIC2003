@@ -9,5 +9,8 @@
 class ModifiesProcessing {
 public:
     static void processModifies(vector<StatementInfo>& statementInfo);
+
+    static string extractModifiesVariable(const string& statement, const string& statementType);
+
 };
 

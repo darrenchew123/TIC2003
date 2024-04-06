@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "../source/Database.h"
+#include "../source/db/Database.h"
 #include <iostream>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

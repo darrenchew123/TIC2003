@@ -10,3 +10,7 @@ bool SyntaxValidator::isInteger(const string& intString) {
     int startIndex = 0;
     return all_of(intString.begin() + startIndex, intString.end(), ::isdigit);
 }
+
+bool SyntaxValidator::isVariable(const string& variable) {
+    return !(variable.front() == '"' && variable.back() == '"');
+}

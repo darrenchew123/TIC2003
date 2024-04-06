@@ -3,8 +3,11 @@
 
 using namespace std;
 
-void AncestorProcessing::processAncestor(unordered_map<int,int> parentChildMapping) {
+void AncestorProcessing::processAncestor(multimap<int,int> parentChildMapping) {
 
+    for(auto p : parentChildMapping){
+        cout <<"parentChildMapping "<< p.first << " " << p.second << endl;
+    }
     map<int, int> childParentPair;
 
     for (auto p : parentChildMapping) {
@@ -38,7 +41,7 @@ void AncestorProcessing::processAncestor(unordered_map<int,int> parentChildMappi
                 int innerCurr = innerQ.front();
                 innerQ.pop();
                 //grandchildGrandparentPair.insert({ curr,childParentPair[innerCurr] });
-                Database::insertAncestorRelation(curr, childParentPair[innerCurr]);
+                Database::insertAncestorRelation( childParentPair[innerCurr],curr);
 
                 if (childrenHash.count(childParentPair[innerCurr]))
                     innerQ.push(childParentPair[innerCurr]);

@@ -14,11 +14,14 @@ void Database::initialize() {
 
     // drop existing tables (if any)
     const char* dropTablesSQL = "DROP TABLE IF EXISTS Modifies;"
+        "DROP TABLE IF EXISTS Uses;"
         "DROP TABLE IF EXISTS Pattern;"
         "DROP TABLE IF EXISTS ParentChildRelation;"
+        "DROP TABLE IF EXISTS AncestorRelation;"
         "DROP TABLE IF EXISTS Variable;"
         "DROP TABLE IF EXISTS Statement;"
         "DROP TABLE IF EXISTS Constant;"
+        "DROP TABLE IF EXISTS Call;"
         "DROP TABLE IF EXISTS Procedure;";
     sqlite3_exec(dbConnection, dropTablesSQL, NULL, 0, &errorMessage);
 
@@ -58,7 +61,13 @@ void Database::initialize() {
         "FOREIGN KEY (parentStatementCodeLine) REFERENCES Statement(codeLine));";
     sqlite3_exec(dbConnection, createParentChildRelationTableSQL, NULL, 0, &errorMessage);
 
-
+    // create AncestorRelation table
+    const char* createAncestorRelationSQL = "CREATE TABLE AncestorRelation ("
+                                                    "ancestorStatementCodeLine INT,"
+                                                    "childStatementCodeLine INT,"
+                                                    "PRIMARY KEY (ancestorStatementCodeLine, childStatementCodeLine),"
+                                                    "FOREIGN KEY (ancestorStatementCodeLine) REFERENCES Statement(codeLine));";
+    sqlite3_exec(dbConnection, createAncestorRelationSQL, NULL, 0, &errorMessage);
 
     // create Modifies table
     const char* createModifiesTableSQL = "CREATE TABLE Modifies ("
@@ -75,6 +84,23 @@ void Database::initialize() {
         "RHSExpression VARCHAR(255),"
         "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine));";
     sqlite3_exec(dbConnection, createPatternTableSQL, NULL, 0, &errorMessage);
+
+    // create Uses table
+    const char* createUsesTableSQL = "CREATE TABLE Uses ("
+                                     "statementCodeLine INT,"
+                                     "variableName VARCHAR(255),"
+                                     "FOREIGN KEY (statementCodeLine) REFERENCES Statement(codeLine),"
+                                     "FOREIGN KEY (variableName) REFERENCES Variable(variableName));";
+    sqlite3_exec(dbConnection, createUsesTableSQL, NULL, 0, &errorMessage);
+
+    // Create Call table
+    const char* createCallTableSQL =
+            "CREATE TABLE Call ("
+            "procedureCaller VARCHAR(255),"
+            "procedureCallee VARCHAR(255),"
+            "FOREIGN KEY (procedureCaller) REFERENCES Procedure(procedureName),"
+            "FOREIGN KEY (procedureCallee) REFERENCES Procedure(procedureName));";
+    sqlite3_exec(dbConnection, createCallTableSQL, NULL, 0, &errorMessage);
 
     // initialize the result vector
     dbResults = vector<vector<string>>();
@@ -103,6 +129,8 @@ vector<string> Database::findCommonStrings(vector<string>& arr1, vector<string>&
 void Database::clear() {
     // Delete all records from each table
     const char* clearTablesSQL = "DELETE FROM Modifies;"
+        "DELETE FROM Uses;"
+        "DELETE FROM Call;"
         "DELETE FROM Pattern;"
         "DELETE FROM ParentChildRelation;"
         "DELETE FROM Variable;"
@@ -220,7 +248,19 @@ void Database::getParentChildRelations(vector<string>& results) {
     postProcessDbResults(results, 0);
 }
 
+void Database::insertAncestorRelation(int ancestorStatementCodeLine, int childStatementCodeLine) {
+    string insertSQL = "INSERT INTO AncestorRelation (ancestorStatementCodeLine, childStatementCodeLine) VALUES ("
+                       + to_string(ancestorStatementCodeLine) + ", "
+                       + to_string(childStatementCodeLine) + ");";
+    sqlite3_exec(dbConnection, insertSQL.c_str(), NULL, 0, &errorMessage);
+}
 
+void Database::getAncestorRelation(vector<string>& results) {
+    dbResults.clear();
+    string getSQL = "SELECT ancestorStatementCodeLine, childStatementCodeLine FROM AncestorRelation;";
+    sqlite3_exec(dbConnection, getSQL.c_str(), callback, 0, &errorMessage);
+    postProcessDbResults(results, 0);
+}
 
 
 void Database::insertModifies(int statementCodeLine, const string& variableName) {
@@ -252,7 +292,41 @@ void Database::getPatterns(vector<string>& results) {
     postProcessDbResults(results,2);
 }
 
+void Database::insertUses(int statementCodeLine, const string& variableName) {
+    string insertSQL = "INSERT INTO Uses (statementCodeLine, variableName) VALUES ("
+                       + to_string(statementCodeLine) + ", '"
+                       + variableName + "');";
+    sqlite3_exec(dbConnection, insertSQL.c_str(), NULL, 0, &errorMessage);
+}
 
+void Database::getUses(vector<string>& results) {
+    dbResults.clear();
+    string getSQL = "SELECT statementCodeLine, variableName FROM Uses;";
+    sqlite3_exec(dbConnection, getSQL.c_str(), callback, 0, &errorMessage);
+    postProcessDbResults(results,0);
+}
+
+void Database::insertCalls(const string& caller, const string& callee) {
+    string insertCallSQL = "INSERT INTO Call (procedureCaller, procedureCallee) VALUES ('"
+                           + caller + "', '"
+                           + callee + "');";
+    sqlite3_exec(dbConnection, insertCallSQL.c_str(), NULL, 0, &errorMessage);
+}
+
+void Database::getUses_OutputVar(string leftArg, vector<string>& results) {
+
+    dbResults.clear();
+
+    string getUses_OutputVar = "SELECT variableName FROM Uses WHERE statementCodeLine ='"
+                               + leftArg + "';";
+
+    sqlite3_exec(dbConnection, getUses_OutputVar.c_str(), callback, 0, &errorMessage);
+
+    for (vector<string> dbRow : dbResults) {
+        string var = dbRow.at(0);
+        results.push_back(var);
+    }
+}
 
 
 
@@ -279,36 +353,63 @@ int Database::callback(void* NotUsed, int argc, char** argv, char** azColName) {
 
 
 
-void Database::getModifies_OutputVar(string codeLine, vector<string>& results) {
+void Database::getModifies_OutputVar(string leftArg, vector<string>& results, Query queryToExecute) {
 
     dbResults.clear();
+    string getModifies_OutputVarSQL;
+    if(queryToExecute.declaredVariables[leftArg]=="stmt" || queryToExecute.declaredVariables[leftArg]=="procedure"){
+        getModifies_OutputVarSQL ="SELECT distinct variableName FROM Modifies;";
+    }
+    else if(queryToExecute.declaredVariables[leftArg]=="read"){
+        getModifies_OutputVarSQL ="SELECT m.variableName \n"
+                                  "FROM Modifies AS m \n"
+                                  "WHERE m.statementCodeLine IN (\n"
+                                  "    SELECT s.codeLine \n"
+                                  "    FROM Statement AS s \n"
+                                  "    WHERE s.statementType = \"read\"\n"
+                                  ");";
+    }
+    else{
+        getModifies_OutputVarSQL = "SELECT variableName FROM Modifies WHERE statementCodeLine ='"
+                                   + leftArg + "';";
+    }
 
-    string getModifies_OutputVarSQL = "SELECT variableName FROM Modifies WHERE statementCodeLine ='"
-        + codeLine + "';";
 
     sqlite3_exec(dbConnection, getModifies_OutputVarSQL.c_str(), callback, 0, &errorMessage);
 
     postProcessDbResults(results, 0);
 }
 
-void Database::getModifies_OutputStmt(string rightArg, vector<string>& results) {
+void Database::getModifies_OutputStmt(string rightArg, vector<string>& results, Query queryToExecute) {
 
     dbResults.clear();
-
-    string getModifies_OutputStmtSQL = "SELECT statementCodeLine FROM Modifies WHERE variableName = '"
-        + rightArg + "';";
+    string getModifies_OutputStmtSQL;
+    if(queryToExecute.declaredVariables[rightArg]=="variable" || rightArg == "_"){
+        getModifies_OutputStmtSQL = "SELECT statementCodeLine FROM Modifies;";
+    }
+    else {
+        getModifies_OutputStmtSQL = "SELECT statementCodeLine FROM Modifies WHERE variableName = '"
+                                           + rightArg + "';";
+    }
 
     sqlite3_exec(dbConnection, getModifies_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
 
     postProcessDbResults(results, 0);
 }
 
-void Database::getModifies_OutputProcedures(string rightArg, vector<string>& results) {
+void Database::getModifies_OutputProcedures(string rightArg, vector<string>& results, Query queryToExecute) {
 
     dbResults.clear();
+    string getModifies_OutputProceduresSQL;
+    if(queryToExecute.declaredVariables[rightArg]=="variable"){
+        getModifies_OutputProceduresSQL = "SELECT procedureName FROM procedure";
+    }
+    else{
+        getModifies_OutputProceduresSQL = "SELECT DISTINCT s.procedureName FROM Statement s JOIN Modifies m ON m.statementCodeLine = s.codeLine WHERE m.variableName = '"
+                                                 + rightArg + "';";
+    }
 
-    string getModifies_OutputProceduresSQL = "SELECT DISTINCT s.procedureName FROM Statement s JOIN Modifies m ON m.statementCodeLine = s.codeLine WHERE m.variableName = '"
-        + rightArg + "';";
+
 
     sqlite3_exec(dbConnection, getModifies_OutputProceduresSQL.c_str(), callback, 0, &errorMessage);
 
@@ -476,13 +577,19 @@ void Database::getParent_OutputStmt(string selectVar, string leftArg, string rig
 }
 
 
-void Database::getPattern_OutputStmt(string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& results) {
+void Database::getPattern_OutputStmt(string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& results, Query queryToExecute) {
     dbResults.clear();
 
     string getPattern_OutputStmtSQL;
 
+    cout << "patternLeftArg " << patternLeftArg << " patternRightArg " << patternRightArg;
+
     if (patternLeftArg == "_" && patternRightArg == "_") {
         getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern;";
+        sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
+    }
+    else if (patternRightArg == "_" && queryToExecute.declaredVariables[patternLeftArg]=="variable") {
+        getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE LHSExpression IN (SELECT variableName FROM Variable)";
         sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
     else if (isSubexpression && patternLeftArg != "_") {

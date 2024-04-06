@@ -11,6 +11,7 @@
 #include "ControlFlow.h"
 #include "VariableProcessing.h"
 #include "../utils/SyntaxValidator.h"
+#include <map>
 
 using namespace std;
 
@@ -18,6 +19,6 @@ class TokenProcessing {
 public:
     static bool skipTokenCheck(const string& token, int& i, const vector<string>& tokens);
 
-    static void delegateTokenProcessing(const string& token, const string& procedureName, int& i, int& lineCount, const vector<string>& tokens, stack<string>& statementTypes, stack<int>& parentStack, stack<bool>& expressionStack, vector<StatementInfo>& statementInfo, stack<int>& ifStack, bool& pendingParentPush);
+    static void delegateTokenProcessing(const string& token, const string& procedureName, int& i, int& lineCount, const vector<string>& tokens, stack<string>& statementTypes, stack<int>& parentStack, stack<bool>& expressionStack, vector<StatementInfo>& statementInfo, stack<int>& ifStack, bool& pendingParentPush, multimap<int,int> &parentChildMapping);
 };
 

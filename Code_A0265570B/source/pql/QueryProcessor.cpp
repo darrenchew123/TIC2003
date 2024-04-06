@@ -36,11 +36,11 @@ string QueryProcessor::concatenateWithCommas(const vector<string>& commonStrings
 }
 
 
-void QueryProcessor::getParentT_Pattern_OutputParentT(string& leftArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, string& selectType, vector<string> &databaseResults) {
+void QueryProcessor::getParentT_Pattern_OutputParentT(string& leftArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, string& selectType, vector<string> &databaseResults, Query queryToExecute) {
     vector<string> arr1;
     Database::getParentT_OutputAssign(leftArg, arr1);
     vector<string> arr2;
-    Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
+    Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2,queryToExecute);
 
     vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
 
@@ -56,22 +56,22 @@ void QueryProcessor::getParentT_Pattern_OutputParentT(string& leftArg, string& p
     }
 }
 
-void QueryProcessor::getParentT_Pattern_OutputAssign(string& leftArg, const string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
+void QueryProcessor::getParentT_Pattern_OutputAssign(string& leftArg, const string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
     vector<string> arr1;
     Database::getParentT_OutputAssign(leftArg, arr1);
     vector<string> arr2;
-    Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
+    Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2, queryToExecute);
 
     vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
 
     databaseResults = commonStrings; 
 }
 
-void QueryProcessor::getModifies_Pattern_OutputProcedure(string& rightArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
+void QueryProcessor::getModifies_Pattern_OutputProcedure(string& rightArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
     vector<string> arr1;
-    Database::getModifies_OutputStmt(rightArg, arr1);
+    Database::getModifies_OutputStmt(rightArg, arr1,queryToExecute);
     vector<string> arr2;
-    Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2);
+    Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2,queryToExecute);
 
     vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
 
@@ -81,9 +81,9 @@ void QueryProcessor::getModifies_Pattern_OutputProcedure(string& rightArg, strin
     }
 }
 
-void QueryProcessor::getModifies_Pattern_OutputAssign(string& patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
+void QueryProcessor::getModifies_Pattern_OutputAssign(string& patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
     vector<string> arr1;
-    Database::getPattern_OutputStmt("_", patternRightArg, isSubexpression, arr1);
+    Database::getPattern_OutputStmt("_", patternRightArg, isSubexpression, arr1,queryToExecute);
 
     if (!arr1.empty()) {
         string res = QueryProcessor::concatenateWithCommas(arr1);
@@ -91,9 +91,9 @@ void QueryProcessor::getModifies_Pattern_OutputAssign(string& patternRightArg, b
     }
 }
 
-void QueryProcessor::getModifies_Pattern_OutputVar(string& patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
+void QueryProcessor::getModifies_Pattern_OutputVar(string& patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
     vector<string> arr1;
-    Database::getPattern_OutputStmt("_", patternRightArg, isSubexpression, arr1);
+    Database::getPattern_OutputStmt("_", patternRightArg, isSubexpression, arr1, queryToExecute);
 
     if (!arr1.empty()) {
         string res = QueryProcessor::concatenateWithCommas(arr1);
@@ -101,10 +101,10 @@ void QueryProcessor::getModifies_Pattern_OutputVar(string& patternRightArg, bool
     }
 }
 
-void QueryProcessor::getModifies_OutputParents(string& rightArg, string& selectType, vector<string>& databaseResults) {
+void QueryProcessor::getModifies_OutputParents(string& rightArg, string& selectType, vector<string>& databaseResults, Query queryToExecute) {
     //Retrieve modification statements
     vector<string> LHSLines;
-    Database::getModifies_OutputStmt(rightArg, LHSLines);
+    Database::getModifies_OutputStmt(rightArg, LHSLines,queryToExecute);
 
     //Concatenate lines if not empty
     string childrenLines;

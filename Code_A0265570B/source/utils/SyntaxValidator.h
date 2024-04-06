@@ -9,6 +9,7 @@ class SyntaxValidator {
 public:
     static bool checkName(const string& token);
     static bool isInteger(const string& token);
+    static bool isVariable(const string& variable);
 };
 
 

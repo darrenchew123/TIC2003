@@ -5,12 +5,11 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
-#include "QueryProcessor.h"
 
 using namespace std;
 
-//#ifndef QUERY_H
-//#define QUERY_H
+#ifndef QUERY_H
+#define QUERY_H
 
 struct Condition {
 
@@ -46,4 +45,4 @@ struct Query {
     string selectVar; // s1
 };
 
-//#endif //QUERY_H
+#endif //QUERY_H

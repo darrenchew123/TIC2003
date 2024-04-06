@@ -77,44 +77,41 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
 
     //Determine if query is a combo or simple type and process
     if (!conditionType.empty() && !patternType.empty()) {
-        processComboQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults);
+        processComboQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults, queryToExecute);
     } else {
-        processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults);
+        processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults, queryToExecute);
     }
 
     output.insert(output.end(), databaseResults.begin(), databaseResults.end());
 }
 //
 // Process combo queries
-void QueryEvaluator::processComboQuery(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
+void QueryEvaluator::processComboQuery(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
     if ((selectType == "while" || selectType == "if") && conditionType == "Parent" && isT && patternType == "pattern") {
-        QueryProcessor::getParentT_Pattern_OutputParentT(leftArg, patternLeftArg, patternRightArg, isSubexpression, selectType, databaseResults);
+        QueryProcessor::getParentT_Pattern_OutputParentT(leftArg, patternLeftArg, patternRightArg, isSubexpression, selectType, databaseResults,queryToExecute);
     }
     else if (selectType == "assign" && conditionType == "Parent" && isT && patternType == "pattern") {
-        QueryProcessor::getParentT_Pattern_OutputAssign(leftArg, patternLeftArg, patternRightArg, isSubexpression, databaseResults);
+        QueryProcessor::getParentT_Pattern_OutputAssign(leftArg, patternLeftArg, patternRightArg, isSubexpression, databaseResults,queryToExecute);
     }
     else if (selectType == "procedure" && conditionType == "Modifies" && patternType == "pattern") {
-        QueryProcessor::getModifies_Pattern_OutputProcedure(rightArg,patternLeftArg,patternRightArg,isSubexpression,databaseResults);
+        QueryProcessor::getModifies_Pattern_OutputProcedure(rightArg,patternLeftArg,patternRightArg,isSubexpression,databaseResults,queryToExecute);
     }
         // Select a such that Modifies (a, v) pattern a (v, _"n"_)
     else if (selectType == "assign" && conditionType == "Modifies" && patternType == "pattern" && rightArg == patternLeftArg) {
-        QueryProcessor::getModifies_Pattern_OutputAssign(patternRightArg, isSubexpression, databaseResults);
+        QueryProcessor::getModifies_Pattern_OutputAssign(patternRightArg, isSubexpression, databaseResults,queryToExecute);
     }
         // Select v such that Modifies (a, v) pattern a1 (v, _"n"_)
     else if (selectType == "variable" && conditionType == "Modifies" && patternType == "pattern" && rightArg == patternLeftArg) {
-        QueryProcessor::getModifies_Pattern_OutputVar(patternRightArg, isSubexpression, databaseResults);
+        QueryProcessor::getModifies_Pattern_OutputVar(patternRightArg, isSubexpression, databaseResults,queryToExecute);
     }
 }
 
 
-
-
-
 // process simple queries
-void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults) {
+void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
     if (selectType == "procedure") {
         if (conditionType == "Modifies") {
-            Database::getModifies_OutputProcedures(rightArg, databaseResults);
+            Database::getModifies_OutputProcedures(rightArg, databaseResults, queryToExecute);
         }
         else
             Database::getProcedures(databaseResults);
@@ -129,7 +126,7 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
     }
     else if (selectType == "variable") {
         if (conditionType == "Modifies") {
-            Database::getModifies_OutputVar(leftArg, databaseResults);
+            Database::getModifies_OutputVar(leftArg, databaseResults, queryToExecute);
         }
         else
             Database::getVariables(databaseResults);
@@ -152,7 +149,7 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
             }
         }
         else if (conditionType == "Modifies") {
-            Database::getModifies_OutputStmt(rightArg, databaseResults);
+            Database::getModifies_OutputStmt(rightArg, databaseResults,queryToExecute);
         }
         else {
             Database::getStatements(databaseResults);
@@ -171,7 +168,8 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
             }
         }
         else if (patternType == "pattern") {
-            Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, databaseResults);
+            cout << "testing assign " <<endl;
+            Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, databaseResults, queryToExecute);
         }
         else
             Database::getStatementType(selectType, databaseResults);
@@ -181,7 +179,7 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
     }
     else if (selectType == "while" || selectType == "if") {
         if (conditionType == "Modifies") {
-            QueryProcessor::getModifies_OutputParents(rightArg, selectType, databaseResults);
+            QueryProcessor::getModifies_OutputParents(rightArg, selectType, databaseResults,queryToExecute);
         }
         Database::getStatementType(selectType, databaseResults);
     }

@@ -2,7 +2,10 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 #include "sqlite3.h"
+#include "../pql/Query.h"
+
 
 using namespace std;
 
@@ -42,6 +45,10 @@ public:
 
     static void getParentChildRelations(vector<string>& results);
 
+    static void insertAncestorRelation(int ancestorStatementCodeLine, int childStatementCodeLine);
+
+    static void getAncestorRelation(vector<string>& results);
+
     static void insertModifies(int statementCodeLine, const string& variableName);
 
     static void getModifies(vector<string>& results);
@@ -50,13 +57,20 @@ public:
 
     static void getPatterns(vector<string>& results);
 
-    static void getModifies_OutputVar(string codeLine, vector<string>& results);
+    static void insertUses(int statementCodeLine, const string& variableName);
 
-    static void getModifies_OutputStmt(string rightArg, vector<string>& results);
+    static void getUses(vector<string>& results);
+
+    static void insertCalls(const string& caller, const string& callee);
+
+
+    static void getModifies_OutputVar(string codeLine, vector<string>& results, Query queryToExecute);
+
+    static void getModifies_OutputStmt(string rightArg, vector<string>& results, Query queryToExecute);
 
     static void getModifies_OutputParents(string selectType, string ParentLines, vector<string>& results);
 
-    static void getModifies_OutputProcedures(string rightArg, vector<string>& results);
+    static void getModifies_OutputProcedures(string rightArg, vector<string>& results, Query queryToExecute);
 
     static void getParentT_OutputStmt(string leftArg, vector<string>& results);
 
@@ -66,7 +80,7 @@ public:
 
     static void getParent_OutputStmt(string selectVar, string leftArg, string rightArg, vector<string>& results);
 
-    static void getPattern_OutputStmt(string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& results);
+    static void getPattern_OutputStmt(string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& results, Query queryToExecute);
 
     static void getCombo_ParentT_Pattern_OutputStmt(string res, vector<string>& results);
 
@@ -77,6 +91,8 @@ public:
     static void getCombo_Modifies_Pattern_OutputAssign(string res, vector<string>& results);
 
     static void getCombo_Modifies_Pattern_OutputVar(string res, vector<string>& results);
+
+    static void getUses_OutputVar(string leftArg, vector<string>& results);
 
 private:
     static sqlite3* dbConnection;
