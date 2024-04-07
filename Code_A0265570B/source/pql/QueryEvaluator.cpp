@@ -23,10 +23,10 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
 
     Query queryToExecute = QueryParser::parser(tokens);
 
-    for (auto a : queryToExecute.declaredVariables) {
+    /*for (auto a : queryToexecute.declaredvariables) {
         cout << a.first << endl;
         cout << a.second << endl;
-    }
+    }*/
 
     /*for (Condition c : queryToExecute.conditions) {
         output.push_back("cond:");
@@ -178,10 +178,12 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
     else if (selectType == "assign") {
         if (conditionType == "Parent") {
             if (isT) {
+                cout << "ParentT" << endl;
                 Database::getParentT(selectType, leftArg, rightArg, databaseResults,queryToExecute);
             }
 
             else {
+                cout << "Parent" << endl;
                 Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
 
