@@ -431,78 +431,6 @@ void Database::getModifies_OutputProcedures(string rightArg, vector<string>& res
 //    }
 //}
 
-void Database::getParentT_OutputStmt(string leftArg, vector<string>& results) {
-
-    unordered_set<string> parents;
-
-    dbResults.clear();
-    string getParentCodeLine = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation;";
-    sqlite3_exec(dbConnection,getParentCodeLine.c_str(), callback, 0, &errorMessage);
-    for (vector<string> dbRow : dbResults) {
-        parents.insert(dbRow.at(0));
-    }
-
-    unordered_set<string> visited;
-
-    queue<string> q;
-
-
-    //to consider validation
-    if (leftArg == "w") {
-        dbResults.clear();
-        string getChildrenCodeline = "SELECT p.childStatementCodeLine FROM ParentChildRelation p JOIN Statement s ON p.parentStatementCodeLine = s.codeLine WHERE s.statementType = 'while';";
-        sqlite3_exec(dbConnection, getChildrenCodeline.c_str(), callback, 0, &errorMessage);
-        for (vector<string> dbRow : dbResults) {
-            q.push(dbRow.at(0));
-        }
-    }
-    else if (leftArg == "i") {
-        dbResults.clear();
-        string getChildrenCodeline = "SELECT p.childStatementCodeLine FROM ParentChildRelation p JOIN Statement s ON p.parentStatementCodeLine = s.codeLine WHERE s.statementType = 'if';";
-        sqlite3_exec(dbConnection, getChildrenCodeline.c_str(), callback, 0, &errorMessage);
-        for (vector<string> dbRow : dbResults) {
-            q.push(dbRow.at(0));
-        }
-    }
-
-        //considering all parent type
-    else if (leftArg == "_") {
-        dbResults.clear();
-        string getChildrenCodeline = "SELECT childStatementCodeLine FROM ParentChildRelation;";
-        sqlite3_exec(dbConnection, getChildrenCodeline.c_str(), callback, 0, &errorMessage);
-        for (vector<string> dbRow : dbResults) {
-            q.push(dbRow.at(0));
-        }
-    }
-
-    while (!q.empty()) {
-
-        string curr = q.front();
-        q.pop();
-
-        if (parents.count(curr)) {
-
-            dbResults.clear();
-            string getChildrenCodeline = "SELECT childStatementCodeLine FROM ParentChildRelation WHERE parentStatementCodeLine = '"
-                                            + curr + "';";
-            sqlite3_exec(dbConnection, getChildrenCodeline.c_str(), callback, 0, &errorMessage);
-            for (vector<string> dbRow : dbResults) {
-                q.push(dbRow.at(0));
-            }
-            if (!visited.count(curr)) {
-                results.push_back(curr);
-                visited.insert(curr);
-            }
-        }
-        else {
-            if (!visited.count(curr)) {
-                results.push_back(curr);
-                visited.insert(curr);
-            }
-        }
-
-    }
-}
 
 void Database::getStatements_OutputAssign(vector<string>& results) {
 
@@ -511,68 +439,6 @@ void Database::getStatements_OutputAssign(vector<string>& results) {
     string getStatements_OutputAssignSQL = "SELECT codeLine FROM Statement WHERE statementType = 'assign';";
     sqlite3_exec(dbConnection, getStatements_OutputAssignSQL.c_str(), callback, 0, &errorMessage);
 
-    postProcessDbResults(results, 0);
-}
-
-void Database::getParentT_OutputAssign(string leftArg, vector<string> &results) {
-    vector<string> arr1;
-    Database::getParentT_OutputStmt(leftArg, arr1);
-    vector<string> arr2;
-    Database::getStatements_OutputAssign(arr2);
-    vector<string> commonStrings = Database::findCommonStrings(arr1, arr2);
-    results = commonStrings;
-}
-
-void Database::getParent_OutputStmt(string selectVar, string leftArg, string rightArg, vector<string>& results) {
-
-    dbResults.clear();
-
-    string getParent_OutputStmtSQL;
-
-    //test case: Select s1 such that Parent(s, s1)
-    if (leftArg == selectVar && rightArg != selectVar) {
-        getParent_OutputStmtSQL = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE childStatementCodeLine ='"
-            + rightArg + "';";
-        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
-    }
-
-    //test case: Select s1 such that Parent(s, s1)
-    //Select s such that Parent(s, _)
-    if (leftArg == selectVar && rightArg == "_") {
-        getParent_OutputStmtSQL = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation;";
-
-        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
-    }
-    if (leftArg == selectVar && rightArg != "_") {
-        getParent_OutputStmtSQL = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE childStatementCodeLine ='"
-            + rightArg + "';";
-
-        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
-    }
-    //test case: Select s such that Parent(s, s1)
-    else if (leftArg == selectVar) { // LHS = selectVar -> return parents
-        getParent_OutputStmtSQL = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation;";
-
-        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
-    }
-    else if (leftArg != selectVar && rightArg == selectVar) {
-        getParent_OutputStmtSQL = "SELECT childStatementCodeLine FROM ParentChildRelation WHERE parentStatementCodeLine ='"
-            + leftArg + "';";
-        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
-    }
-    //test case: Select s1 such that Parent(s, s1)
-    else if (rightArg == selectVar) { // RHS = selectVar -> return children
-        getParent_OutputStmtSQL = "SELECT childStatementCodeLine FROM ParentChildRelation;";
-
-        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
-    }
-    
-    else {
-        getParent_OutputStmtSQL = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE childStatementCodeLine ='"
-            + rightArg + "';";
-
-        sqlite3_exec(dbConnection, getParent_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
-    }
     postProcessDbResults(results, 0);
 }
 
@@ -619,70 +485,6 @@ void Database::getPattern_OutputStmt(string patternLeftArg, string patternRightA
             + patternRightArg + "';";
         sqlite3_exec(dbConnection, getPattern_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
     }
-    postProcessDbResults(results, 0);
-}
-
-void Database::getCombo_ParentT_Pattern_OutputStmt(string res, vector<string>& results) {
-    dbResults.clear();
-
-    string getDirectParents = "SELECT DISTINCT parentStatementCodeLine FROM ParentChildRelation WHERE childStatementCodeLine in ("
-        + res + ");";
-    sqlite3_exec(dbConnection, getDirectParents.c_str(), callback, 0, &errorMessage);
-
-    queue <string> q;
-
-    for (vector<string> parent : dbResults) {
-        //push direct parents to queue
-        q.push(parent.at(0));
-    }
-
-    //hash all children
-    unordered_set<string> children;
-    dbResults.clear();
-    string getChildrenCodeLine = "SELECT DISTINCT childStatementCodeLine FROM ParentChildRelation;";
-    sqlite3_exec(dbConnection, getChildrenCodeLine.c_str(), callback, 0, &errorMessage);
-    for (vector<string> dbRow : dbResults) {
-        children.insert(dbRow.at(0));
-    }
-
-    while (!q.empty()) {
-
-        string curr = q.front();
-        q.pop();
-
-        results.push_back(curr);
-
-        if (children.count(curr)) {
-
-            dbResults.clear();
-            string getParentCodeline = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE childStatementCodeLine = '"
-                + curr + "';";
-            sqlite3_exec(dbConnection, getParentCodeline.c_str(), callback, 0, &errorMessage);
-            for (vector<string> dbRow : dbResults) {
-                q.push(dbRow.at(0));
-            }
-        }
-    }
-
-}
-
-void Database::getXTypeOfParents_OutputStmt(string selectType, vector<string>& results) {
-
-    dbResults.clear();
-    /*string getXTypeOfParents_OutputStmtSQL;
-    if (selectType == "w") {
-        getXTypeOfParents_OutputStmtSQL = "SELECT codeLine FROM Statement WHERE statementType = 'while';";
-        sqlite3_exec(dbConnection, getXTypeOfParents_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
-    }
-    else if (selectType == "i") {
-        getXTypeOfParents_OutputStmtSQL = "SELECT codeLine FROM Statement WHERE statementType = 'if';";
-        sqlite3_exec(dbConnection, getXTypeOfParents_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
-    }*/
-
-    string getXTypeOfParents_OutputStmtSQL = "SELECT codeLine FROM Statement WHERE statementType = '" 
-                                              + selectType + "'; ";
-    sqlite3_exec(dbConnection, getXTypeOfParents_OutputStmtSQL.c_str(), callback, 0, &errorMessage);
-
     postProcessDbResults(results, 0);
 }
 
@@ -792,6 +594,10 @@ void Database::getParent(string selectType, string leftArg, string rightArg, vec
                 }
                 else if (selectType == "stmt") {
                     getParentSQL = "SELECT DISTINCT CodeLine FROM Statement";
+                }
+                else {
+                    Database::getStatementType(selectType, results);
+                    return;
                 }
             }
             dbResults.clear();
@@ -961,6 +767,10 @@ void Database::getParentT(string selectType, string leftArg, string rightArg, ve
                 }
                 else if (selectType == "stmt") {
                     getParentSQL = "SELECT DISTINCT CodeLine FROM Statement";
+                }
+                else {
+                    Database::getStatementType(selectType, results);
+                    return;
                 }
             }
             dbResults.clear();

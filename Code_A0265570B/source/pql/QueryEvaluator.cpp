@@ -86,13 +86,7 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
 //
 // Process combo queries
 void QueryEvaluator::processComboQuery(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
-    if ((selectType == "while" || selectType == "if") && conditionType == "Parent" && isT && patternType == "pattern") {
-        QueryProcessor::getParentT_Pattern_OutputParentT(leftArg, patternLeftArg, patternRightArg, isSubexpression, selectType, databaseResults,queryToExecute);
-    }
-    else if (selectType == "assign" && conditionType == "Parent" && isT && patternType == "pattern") {
-        QueryProcessor::getParentT_Pattern_OutputAssign(leftArg, patternLeftArg, patternRightArg, isSubexpression, databaseResults,queryToExecute);
-    }
-    else if (selectType == "procedure" && conditionType == "Modifies" && patternType == "pattern") {
+    if (selectType == "procedure" && conditionType == "Modifies" && patternType == "pattern") {
         QueryProcessor::getModifies_Pattern_OutputProcedure(rightArg,patternLeftArg,patternRightArg,isSubexpression,databaseResults,queryToExecute);
     }
         // Select a such that Modifies (a, v) pattern a (v, _"n"_)
@@ -121,6 +115,7 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
         }
         else if (conditionType == "Parent") {
             if (isT) {
+                cout << "ParentT" << endl;
                 Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
 

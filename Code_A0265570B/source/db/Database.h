@@ -71,19 +71,9 @@ public:
 
     static void getModifies_OutputProcedures(string rightArg, vector<string>& results, Query queryToExecute);
 
-    static void getParentT_OutputStmt(string leftArg, vector<string>& results);
-
-    static void getParentT_OutputAssign(string leftArg, vector<string>& results);
-
     static void getStatements_OutputAssign(vector<string>& results);
 
-    static void getParent_OutputStmt(string selectVar, string leftArg, string rightArg, vector<string>& results);
-
     static void getPattern_OutputStmt(string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& results, Query queryToExecute);
-
-    static void getCombo_ParentT_Pattern_OutputStmt(string res, vector<string>& results);
-
-    static void getXTypeOfParents_OutputStmt(string selectType, vector<string> &results);
 
     static void getCombo_Modifies_Pattern_OutputProcedure(string res, vector<string>& results);
 

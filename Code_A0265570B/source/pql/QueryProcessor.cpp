@@ -36,37 +36,6 @@ string QueryProcessor::concatenateWithCommas(const vector<string>& commonStrings
 }
 
 
-void QueryProcessor::getParentT_Pattern_OutputParentT(string& leftArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, string& selectType, vector<string> &databaseResults, Query queryToExecute) {
-    vector<string> arr1;
-    Database::getParentT_OutputAssign(leftArg, arr1);
-    vector<string> arr2;
-    Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2,queryToExecute);
-
-    vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
-
-    if (!commonStrings.empty()) {
-        string res = QueryProcessor::concatenateWithCommas(commonStrings);
-        Database::getCombo_ParentT_Pattern_OutputStmt(res, databaseResults);
-
-        if (!databaseResults.empty()) {
-            vector<string> arr4;
-            Database::getXTypeOfParents_OutputStmt(selectType, arr4);
-            databaseResults = QueryProcessor::findCommonStrings(databaseResults, arr4);
-        }
-    }
-}
-
-void QueryProcessor::getParentT_Pattern_OutputAssign(string& leftArg, const string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
-    vector<string> arr1;
-    Database::getParentT_OutputAssign(leftArg, arr1);
-    vector<string> arr2;
-    Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, arr2, queryToExecute);
-
-    vector<string> commonStrings = QueryProcessor::findCommonStrings(arr1, arr2);
-
-    databaseResults = commonStrings; 
-}
-
 void QueryProcessor::getModifies_Pattern_OutputProcedure(string& rightArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
     vector<string> arr1;
     Database::getModifies_OutputStmt(rightArg, arr1,queryToExecute);
@@ -114,7 +83,7 @@ void QueryProcessor::getModifies_OutputParents(string& rightArg, string& selectT
 
     //Retrieve parent lines based on children lines
     vector<string> ParentLinesArr;
-    Database::getCombo_ParentT_Pattern_OutputStmt(childrenLines, ParentLinesArr);
+    //Database::getCombo_ParentT_Pattern_OutputStmt(childrenLines, ParentLinesArr);
 
     //Process parent lines and update databaseResults
     if (!ParentLinesArr.empty()) {
