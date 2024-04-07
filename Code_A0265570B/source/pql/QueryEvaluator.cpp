@@ -1,6 +1,8 @@
 #include "QueryEvaluator.h"
 #include "QueryParser.h"
 
+#include <algorithm>
+
 QueryEvaluator::QueryEvaluator() {}
 
 QueryEvaluator::~QueryEvaluator() {}
@@ -44,6 +46,16 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
         output.push_back(a.patternRightArg);
     }*/
 
+   /* for (string a : queryToExecute.multiSelectType) {
+        cout << a << " ";
+    }
+    cout << endl;
+
+    for (string a : queryToExecute.multiSelectVar) {
+        cout << a << " ";
+    }
+    cout << endl;*/
+
     string selectType = queryToExecute.selectType;
     string selectVar = queryToExecute.selectVar;
 
@@ -63,7 +75,6 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
     string patternLeftArg;
     string patternRightArg;
     bool isSubexpression = 0;
-    cout << "left arg " << leftArg << " right arg " <<  rightArg << " select-type " << selectType << endl;
 
     if (!queryToExecute.patterns.empty()) {
         patternType = queryToExecute.patterns[0].patternType;
@@ -76,10 +87,40 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
     //output.push_back(conditionType);
     //output.push_back(patternType);
 
-    //Determine if query is a combo or simple type and process
-    if (!conditionType.empty() && !patternType.empty()) {
-        processComboQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults, queryToExecute);
+    int condSize = queryToExecute.conditions.size();
+    int patternSize = queryToExecute.patterns.size();
+    int totalSize = condSize + patternSize;
+
+    bool isMultipleCond = 0;
+    if (totalSize > 1) {
+        isMultipleCond = 1;
+    }
+
+    bool isMultiSelect = 0;
+    if (!queryToExecute.multiSelectVar.empty()) {
+        isMultiSelect = 1;
+    }
+    
+    cout << "isMultipleCond= " << isMultipleCond << " isMultipleSelect= " << isMultiSelect << endl;
+
+    if (isMultiSelect) {
+        //process multiSelect
+        if (isMultipleCond) {
+            cout << "multiselect + multicond" << endl;
+        }
+        else {
+            cout << "multiselect + single cond" << endl;
+
+        }
+    }
+    else if (isMultipleCond) {
+        cout << "single select + multicond" << endl;
+
+        processSingleSelectMultiCond(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults, queryToExecute);
+
+
     } else {
+        cout << "single select + single cond" << endl;
         processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults, queryToExecute);
     }
 
@@ -87,18 +128,115 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
 }
 //
 // Process combo queries
-void QueryEvaluator::processComboQuery(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
-    if (selectType == "procedure" && conditionType == "Modifies" && patternType == "pattern") {
-        QueryProcessor::getModifies_Pattern_OutputProcedure(rightArg,patternLeftArg,patternRightArg,isSubexpression,databaseResults,queryToExecute);
+void QueryEvaluator::processSingleSelectMultiCond(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
+
+    vector<string> results;
+    vector<string> curr;
+
+    vector<Condition> conditions = queryToExecute.conditions;
+
+    for (int i = 0; i < conditions.size(); i++) {
+
+        cout << "processing condition " << i+1 << endl;
+
+        string conditionType;
+        bool isT = 0;
+        string leftArg;
+        string rightArg;
+
+        if (!queryToExecute.conditions.empty()) {
+            conditionType = queryToExecute.conditions[i].conditionType;
+            isT = queryToExecute.conditions[i].isT;
+            leftArg = queryToExecute.conditions[i].leftArg;
+            rightArg = queryToExecute.conditions[i].rightArg;
+        }
+
+        processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, curr, queryToExecute);
+        
+        cout << "curr: ";
+        for (auto a : curr) {
+            cout << a << " ";
+        }
+        cout << endl;
+
+        if (i == 0) {
+            results = curr;
+            curr.clear();
+        }
+        else {
+            //intersect curr and results
+            sort(curr.begin(), curr.end()); // set_intersection requires sorted ranges
+            sort(results.begin(), results.end()); // set_intersection requires sorted ranges
+
+            vector<string> intersection;
+            set_intersection(results.begin(), results.end(),
+                curr.begin(), curr.end(),
+                back_inserter(intersection));
+            results = intersection;
+
+            curr.clear();
+        }
+
+        cout << "results: ";
+        for (auto a : results) {
+            cout << a << " ";
+        }
+        cout << endl;
     }
-        // Select a such that Modifies (a, v) pattern a (v, _"n"_)
-    else if (selectType == "assign" && conditionType == "Modifies" && patternType == "pattern" && rightArg == patternLeftArg) {
-        QueryProcessor::getModifies_Pattern_OutputAssign(patternRightArg, isSubexpression, databaseResults,queryToExecute);
+
+    vector<Pattern> patterns = queryToExecute.patterns;
+
+    for (int i = 0; i < patterns.size(); i++) {
+
+        cout << "processing pattern " << i+1 << endl;
+
+        string patternType;
+        string patternLeftArg;
+        string patternRightArg;
+        bool isSubexpression = 0;
+
+        if (!queryToExecute.patterns.empty()) {
+            patternType = queryToExecute.patterns[i].patternType;
+            patternLeftArg = queryToExecute.patterns[i].patternLeftArg;
+            patternRightArg = queryToExecute.patterns[i].patternRightArg;
+            isSubexpression = queryToExecute.patterns[i].isSubexpression;
+        }
+
+        processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, curr, queryToExecute);
+
+        cout << "curr: ";
+        for (auto a : curr) {
+            cout << a << " ";
+        }
+        cout << endl;
+
+        if (i == 0) {
+            results = curr;
+            curr.clear();
+        }
+        else {
+            //intersect curr and results
+            sort(curr.begin(), curr.end()); // set_intersection requires sorted ranges
+            sort(results.begin(), results.end()); // set_intersection requires sorted ranges
+
+            vector<string> intersection;
+            set_intersection(results.begin(), results.end(),
+                curr.begin(), curr.end(),
+                back_inserter(intersection));
+            results = intersection;
+
+            curr.clear();
+        }
+
+        cout << "results: ";
+        for (auto a : results) {
+            cout << a << " ";
+        }
+        cout << endl;
+
     }
-        // Select v such that Modifies (a, v) pattern a1 (v, _"n"_)
-    else if (selectType == "variable" && conditionType == "Modifies" && patternType == "pattern" && rightArg == patternLeftArg) {
-        QueryProcessor::getModifies_Pattern_OutputVar(patternRightArg, isSubexpression, databaseResults,queryToExecute);
-    }
+    
+    databaseResults = results;
 }
 
 

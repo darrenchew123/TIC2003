@@ -99,8 +99,10 @@ Query QueryParser::parser(const vector<string>& tokens) {
                 i++;
                 vector<string> vars = Utility_appendObject(tokens, tokens[i], i, ">", ",");
                 for (string var : vars) {
-                    if (query.declaredVariables.count(var))
+                    if (query.declaredVariables.count(var)) {
                         query.multiSelectType.insert(query.declaredVariables[var]);
+                        query.multiSelectVar.insert(var);
+                    }
                 }
             }
             else {
