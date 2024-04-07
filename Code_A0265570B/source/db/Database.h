@@ -19,6 +19,8 @@ public:
 
     static void close();
 
+    static void executeAndProcessSQL(const string& sqlQuery, vector<string>& results);
+
     static void postProcessDbResults(vector<string>& results, int columnIndex);
 
     static vector<string> findCommonStrings(vector<string>& arr1, vector<string>& arr2);
@@ -36,6 +38,8 @@ public:
     static void insertVariable(string variableName, int statementCodeLine);
 
     static void getVariables(vector<string>& results);
+
+    static void getVariablesPattern(vector<string>& results, string rhsArgs);
 
     static void insertConstant(int statementCodeLine, int constantValue);
 
@@ -63,6 +67,8 @@ public:
 
     static void insertCalls(const string& caller, const string& callee);
 
+    static void insertCallsT(const string& caller, const string& callee);
+
     static void getModifies_OutputVar(string codeLine, vector<string>& results, Query queryToExecute);
 
     static void getModifies_OutputStmt(string rightArg, vector<string>& results, Query queryToExecute);
@@ -81,12 +87,22 @@ public:
 
     static void getCombo_Modifies_Pattern_OutputVar(string res, vector<string>& results);
 
-    static void getUses_OutputVar(string leftArg, vector<string>& results);
+    static void getUses_OutputVar(string leftArg, vector<string>& results, Query queryToExecute);
 
-    //parent
+    static void getUses_OutputStmt(string leftArg, vector<string>& results, Query queryToExecute);
+
+    static void getUses_OutputProcedures(string leftArg, vector<string>& results, Query queryToExecute);
+
+    static void getUses_OutputType(string leftArg, vector<string>& results, Query queryToExecute);
+
+    static void getCalls_OutputProcedures(string leftArg, string rightArg, vector<string>& results, Query queryToExecute);
+
+    static void getCallsT_OutputProcedures(string leftArg, string rightArg, vector<string>& results, Query queryToExecute);
+
     static void getParent(string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
 
     static void getParentT(string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
+
 
 private:
     static sqlite3* dbConnection;

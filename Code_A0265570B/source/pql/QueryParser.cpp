@@ -76,7 +76,7 @@ Query QueryParser::parser(const vector<string>& tokens) {
     Query query;
 
     unordered_set<string> dataType{ "assign","while","stmt", "variable", "print", "read", "if", "constant", "procedure", "if" };
-    unordered_set<string> conditionTypes{ "Follows", "Modifies", "Uses", "Parent" , "Next" };
+    unordered_set<string> conditionTypes{ "Follows", "Modifies", "Uses", "Parent" , "Next", "calls" };
     unordered_set<string> patternTypes{ "pattern" };
 
 

@@ -19,7 +19,7 @@ void SourceProcessor::process(string &program) {
     bool pendingParentPush = false;
 
 
-    int lineCount = 0;
+    int lineCount = 1;
     int blockDepth = 0;
     bool inProcedure = false;
     string procedureName;
@@ -51,7 +51,7 @@ void SourceProcessor::process(string &program) {
     }
 
     ExpressionProcessing::processExpression(statementInfo);
-    ModifiesProcessing::processModifies(statementInfo);
+    ModifiesProcessing::processModifies(statementInfo,parentChildMapping);
     UsesProcessing::processUses(statementInfo);
     CallsProcessing::processCalls(statementInfo);
     AncestorProcessing::processAncestor(parentChildMapping);

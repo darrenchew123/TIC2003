@@ -1,7 +1,4 @@
 #pragma once
-
-//#ifndef STATEMENT_INFO_H
-//#define STATEMENT_INFO_H
 #include <string>
 
 struct StatementInfo {
@@ -11,4 +8,3 @@ struct StatementInfo {
     std::string procedureName;
 };
 
-//#endif // STATEMENT_INFO_H

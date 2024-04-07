@@ -35,7 +35,6 @@ string QueryProcessor::concatenateWithCommas(const vector<string>& commonStrings
     return res;
 }
 
-
 void QueryProcessor::getModifies_Pattern_OutputProcedure(string& rightArg, string& patternLeftArg, string& patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
     vector<string> arr1;
     Database::getModifies_OutputStmt(rightArg, arr1,queryToExecute);
@@ -83,7 +82,7 @@ void QueryProcessor::getModifies_OutputParents(string& rightArg, string& selectT
 
     //Retrieve parent lines based on children lines
     vector<string> ParentLinesArr;
-    //Database::getCombo_ParentT_Pattern_OutputStmt(childrenLines, ParentLinesArr);
+//    Database::getCombo_ParentT_Pattern_OutputStmt(childrenLines, ParentLinesArr);
 
     //Process parent lines and update databaseResults
     if (!ParentLinesArr.empty()) {

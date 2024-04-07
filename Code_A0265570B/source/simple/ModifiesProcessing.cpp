@@ -1,10 +1,39 @@
 #include "ModifiesProcessing.h"
 
-void ModifiesProcessing::processModifies(vector<StatementInfo>& statementInfo) {
+void ModifiesProcessing::processModifies(vector<StatementInfo>& statementInfo, multimap<int,int> parentChildMapping) {
+    map<int, string> lineToTypeMapping;
+    map<int, set<string>> modifiesMap;
+
     for (const auto& info : statementInfo) {
-        string variableName = extractModifiesVariable(info.statementContent, info.statementType);
+        lineToTypeMapping[info.lineCount] = info.statementType;
+    }
+
+    for (const auto& info : statementInfo) {
+        std::string variableName = extractModifiesVariable(info.statementContent, info.statementType);
         if (!variableName.empty()) {
-            Database::insertModifies(info.lineCount, variableName);
+            updateModifiesForAncestors(info.lineCount, variableName, parentChildMapping, modifiesMap);
+        }
+    }
+    for (const auto& modifyEntry : modifiesMap) {
+        for (const auto& variable : modifyEntry.second) {
+            Database::insertModifies(modifyEntry.first, variable);
+        }
+    }
+}
+
+void ModifiesProcessing::updateModifiesForAncestors(int line, string& variableName, multimap<int,int> parentChildMapping, map<int, set<string>>& modifiesMap) {
+   stack<int> ancestors;
+    ancestors.push(line);
+
+    while (!ancestors.empty()) {
+        int currentLine = ancestors.top();
+        ancestors.pop();
+
+        modifiesMap[currentLine].insert(variableName);
+        for (const auto& pair : parentChildMapping) {
+            if (pair.second == currentLine) {
+                ancestors.push(pair.first);
+            }
         }
     }
 }

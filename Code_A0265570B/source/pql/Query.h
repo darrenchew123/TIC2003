@@ -8,9 +8,6 @@
 
 using namespace std;
 
-#ifndef QUERY_H
-#define QUERY_H
-
 struct Condition {
 
     string conditionType;
@@ -44,5 +41,3 @@ struct Query {
     string selectType; // while
     string selectVar; // s1
 };
-
-#endif //QUERY_H
