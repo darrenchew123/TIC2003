@@ -547,7 +547,7 @@ void Database::getCallsT_OutputProcedures(string leftArg, string rightArg, vecto
     executeAndProcessSQL(getCallsT_OutputProceduresSQL,results);
 }
 
-void Database::getParent(string selectType, string leftArg, string rightArg, vector<string>& results, Query query) {
+void Database::getParent(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query) {
 
     dbResults.clear();
     string getParentSQL;
@@ -712,7 +712,7 @@ void Database::getParent(string selectType, string leftArg, string rightArg, vec
     executeAndProcessSQL(getParentSQL,results);
 }
 
-void Database::getParentT(string selectType, string leftArg, string rightArg, vector<string>& results, Query query) {
+void Database::getParentT(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query) {
     string getParentSQL;
 
     bool islhsSyn = 0, isrhsSyn = 0;
@@ -737,7 +737,7 @@ void Database::getParentT(string selectType, string leftArg, string rightArg, ve
     dbResults.clear();
 
     //init selectVar
-    string selectVar = query.selectVar;
+    //string selectVar = query.selectVar;
 
     cout << islhsSyn << endl;
     cout << isrhsSyn << endl;
@@ -925,7 +925,7 @@ void Database::getParentT(string selectType, string leftArg, string rightArg, ve
 
             else if (AncestorExists) { // to encapsulate
                 cout << "got ancestor" << endl;
-
+                cout << leftArg << " " << selectVar << endl;
                 if (leftArg == selectVar) { //return parent
                     cout << "return parent including multi" << endl;            
                     getParentSQL = "SELECT P.parentStatementCodeLine AS ParentLine FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine WHERE S1.statementType = '"

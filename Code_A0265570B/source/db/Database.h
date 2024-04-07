@@ -99,9 +99,9 @@ public:
 
     static void getCallsT_OutputProcedures(string leftArg, string rightArg, vector<string>& results, Query queryToExecute);
 
-    static void getParent(string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
+    static void getParent(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
 
-    static void getParentT(string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
+    static void getParentT(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
 
 
 private:

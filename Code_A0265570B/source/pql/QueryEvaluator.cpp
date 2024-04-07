@@ -104,14 +104,9 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
     cout << "isMultipleCond= " << isMultipleCond << " isMultipleSelect= " << isMultiSelect << endl;
 
     if (isMultiSelect) {
-        //process multiSelect
-        if (isMultipleCond) {
-            cout << "multiselect + multicond" << endl;
-        }
-        else {
-            cout << "multiselect + single cond" << endl;
+        cout << "multi select" << endl;
+        process_multiSelect(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults, queryToExecute);
 
-        }
     }
     else if (isMultipleCond) {
         cout << "single select + multicond" << endl;
@@ -126,8 +121,123 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
 
     output.insert(output.end(), databaseResults.begin(), databaseResults.end());
 }
-//
-// Process combo queries
+
+void QueryEvaluator::process_multiSelect(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
+
+    vector<string> results;
+    vector<string> curr;
+
+    unordered_set<string> multiSelectVar = queryToExecute.multiSelectVar;
+
+    vector<Condition> conditions = queryToExecute.conditions;
+    vector<Pattern> patterns = queryToExecute.patterns;
+
+    for (string v : multiSelectVar) {
+
+        string selectVar = v;
+        string selectType = queryToExecute.declaredVariables[v];
+
+        for (int i = 0; i < conditions.size(); i++) {
+            
+            cout << "processing var " << v << " + condition " << i + 1 << endl;
+
+            string conditionType; //to encapsulate
+            bool isT = 0;
+            string leftArg;
+            string rightArg;
+
+            if (!queryToExecute.conditions.empty()) {
+                conditionType = queryToExecute.conditions[i].conditionType;
+                isT = queryToExecute.conditions[i].isT;
+                leftArg = queryToExecute.conditions[i].leftArg;
+                rightArg = queryToExecute.conditions[i].rightArg;
+            }
+
+            processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, curr, queryToExecute);
+
+            cout << "curr: ";
+            for (auto a : curr) {
+                cout << a << " ";
+            }
+            cout << endl;
+
+            
+            // Merge curr and results into a single vector without duplicates
+            sort(curr.begin(), curr.end()); // Sort curr if not already sorted
+            sort(results.begin(), results.end()); // Sort results if not already sorted
+
+            vector<string> merged;
+            merge(curr.begin(), curr.end(),
+                results.begin(), results.end(),
+                back_inserter(merged));
+
+            // Remove duplicates from the merged vector
+            merged.erase(unique(merged.begin(), merged.end()), merged.end());
+
+            results = merged;
+            curr.clear();
+            
+
+            cout << "results: ";
+            for (auto a : results) {
+                cout << a << " ";
+            }
+            cout << endl;
+
+        }
+
+        for (int i = 0; i < patterns.size(); i++) {
+
+            cout << "processing var " << v << " + pattern " << i + 1 << endl;
+
+            string patternType;
+            string patternLeftArg;
+            string patternRightArg;
+            bool isSubexpression = 0;
+
+            if (!queryToExecute.patterns.empty()) {
+                patternType = queryToExecute.patterns[i].patternType;
+                patternLeftArg = queryToExecute.patterns[i].patternLeftArg;
+                patternRightArg = queryToExecute.patterns[i].patternRightArg;
+                isSubexpression = queryToExecute.patterns[i].isSubexpression;
+            }
+
+            processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, curr, queryToExecute);
+
+            cout << "curr: ";
+            for (auto a : curr) {
+                cout << a << " ";
+            }
+            cout << endl;
+
+
+            // Merge curr and results into a single vector without duplicates
+            sort(curr.begin(), curr.end()); // Sort curr if not already sorted
+            sort(results.begin(), results.end()); // Sort results if not already sorted
+
+            vector<string> merged;
+            merge(curr.begin(), curr.end(),
+                results.begin(), results.end(),
+                back_inserter(merged));
+
+            // Remove duplicates from the merged vector
+            merged.erase(unique(merged.begin(), merged.end()), merged.end());
+
+            results = merged;
+            curr.clear();
+
+
+            cout << "results: ";
+            for (auto a : results) {
+                cout << a << " ";
+            }
+            cout << endl;
+        }
+    }
+    databaseResults = results;
+}
+
+
 void QueryEvaluator::processSingleSelectMultiCond(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
 
     vector<string> results;
@@ -266,12 +376,12 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
         else if (conditionType == "Parent") {
             if (isT) {
                 cout << "ParentT" << endl;
-                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                Database::getParentT(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
 
             else {
                 cout << "Parent" << endl;
-                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                Database::getParent(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
         }
         else {
@@ -284,10 +394,13 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
         }
         else if (conditionType == "Parent") {
             if (isT) {
-                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                cout << "ParentT" << endl;
+                Database::getParentT(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
+
             else {
-                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                cout << "Parent" << endl;
+                Database::getParent(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
         }
         else if(patternType == "pattern"){
@@ -303,11 +416,13 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
     else if (selectType == "constant") {
         if (conditionType == "Parent") {
             if (isT) {
-                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                cout << "ParentT" << endl;
+                Database::getParentT(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
 
             else {
-                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                cout << "Parent" << endl;
+                Database::getParent(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
         }
         else
@@ -316,11 +431,13 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
     else if (selectType == "stmt") {
         if (conditionType == "Parent") {
             if (isT) {
-                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                cout << "ParentT" << endl;
+                Database::getParentT(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
 
             else {
-                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                cout << "Parent" << endl;
+                Database::getParent(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
         }
         else if (conditionType == "Uses"){
@@ -337,9 +454,13 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
     else if (selectType == "assign") {
         if (conditionType == "Parent") {
             if (isT) {
-                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
-            } else {
-                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                cout << "ParentT" << endl;
+                Database::getParentT(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
+            }
+
+            else {
+                cout << "Parent" << endl;
+                Database::getParent(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
         }
         else if (conditionType == "Uses"){
@@ -354,10 +475,13 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
     else if (selectType == "read") {
         if (conditionType == "Parent") {
             if (isT) {
-                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                cout << "ParentT" << endl;
+                Database::getParentT(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
+
             else {
-                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                cout << "Parent" << endl;
+                Database::getParent(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
         }
         else {
@@ -371,12 +495,12 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
         else if (conditionType == "Parent") {
             if (isT) {
                 cout << "ParentT" << endl;
-                Database::getParentT(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                Database::getParentT(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
 
             else {
                 cout << "Parent" << endl;
-                Database::getParent(selectType, leftArg, rightArg, databaseResults, queryToExecute);
+                Database::getParent(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
 
         }
