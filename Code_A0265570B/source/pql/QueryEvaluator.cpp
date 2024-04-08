@@ -201,7 +201,7 @@ void QueryEvaluator::process_multiSelect(string selectVar, string selectType, st
                 patternRightArg = queryToExecute.patterns[i].patternRightArg;
                 isSubexpression = queryToExecute.patterns[i].isSubexpression;
             }
-
+            conditionType= "";
             processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, curr, queryToExecute);
 
             cout << "curr: ";
@@ -271,7 +271,6 @@ void QueryEvaluator::processSingleSelectMultiCond(string selectVar, string selec
 
         if (i == 0) {
             results = curr;
-            curr.clear();
         }
         else {
             //intersect curr and results
@@ -284,8 +283,8 @@ void QueryEvaluator::processSingleSelectMultiCond(string selectVar, string selec
                 back_inserter(intersection));
             results = intersection;
 
-            curr.clear();
         }
+        curr.clear();
 
         cout << "results: ";
         for (auto a : results) {
@@ -311,6 +310,7 @@ void QueryEvaluator::processSingleSelectMultiCond(string selectVar, string selec
             patternRightArg = queryToExecute.patterns[i].patternRightArg;
             isSubexpression = queryToExecute.patterns[i].isSubexpression;
         }
+        conditionType = "";
 
         processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, curr, queryToExecute);
 
@@ -320,23 +320,21 @@ void QueryEvaluator::processSingleSelectMultiCond(string selectVar, string selec
         }
         cout << endl;
 
-        if (i == 0) {
-            results = curr;
-            curr.clear();
-        }
-        else {
-            //intersect curr and results
-            sort(curr.begin(), curr.end()); // set_intersection requires sorted ranges
-            sort(results.begin(), results.end()); // set_intersection requires sorted ranges
+        
+        //intersect curr and results
+        sort(curr.begin(), curr.end()); // set_intersection requires sorted ranges
+        sort(results.begin(), results.end()); // set_intersection requires sorted ranges
 
-            vector<string> intersection;
-            set_intersection(results.begin(), results.end(),
-                curr.begin(), curr.end(),
-                back_inserter(intersection));
-            results = intersection;
+        vector<string> intersection;
+        set_intersection(
+            results.begin(), results.end(),
+            curr.begin(), curr.end(),
+            back_inserter(intersection));
 
-            curr.clear();
-        }
+        results = intersection;
+
+
+        curr.clear();
 
         cout << "results: ";
         for (auto a : results) {
