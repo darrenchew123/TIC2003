@@ -455,6 +455,11 @@ void Database::getPattern_OutputStmt(string patternLeftArg, string patternRightA
     else if (patternRightArg == "_" && queryToExecute.declaredVariables[patternLeftArg]=="variable") {
         getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE LHSExpression IN (SELECT variableName FROM Variable)";
     }
+    //Select a pattern a (v, _"x"_)
+    else if (isSubexpression && queryToExecute.declaredVariables[patternLeftArg] == "variable") {
+        getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE RHSExpression LIKE '%"
+            +patternRightArg+"%' INTERSECT SELECT statementCodeLine FROM Pattern WHERE LHSExpression IN (SELECT variableName FROM Variable);";
+    }
     else if (isSubexpression && patternLeftArg != "_") {
         getPattern_OutputStmtSQL = "SELECT statementCodeLine FROM Pattern WHERE RHSExpression like '%"
             + patternRightArg + "%' AND LHSExpression = '"
@@ -683,11 +688,36 @@ void Database::getParent(string selectVar, string selectType, string leftArg, st
         }
         else if (isrhsSyn) {
             cout << "rhs syn" << endl;
-            getParentSQL = "SELECT childStatementCodeLine FROM ParentChildRelation WHERE parentStatementCodeLine = '"
-                           +leftArg+"';";
+            /*getParentSQL = "SELECT childStatementCodeLine FROM ParentChildRelation WHERE parentStatementCodeLine = '"
+                           +leftArg+"';";*/
+            if (rhsSynType == "stmt") {
+                if (rightArg == selectVar) {
+                    getParentSQL = "SELECT childStatementCodeLine FROM ParentChildRelation WHERE parentStatementCodeLine = '"
+                        + leftArg + "';";
+                }
+            }
+            else if (rightArg == selectVar) {
+                getParentSQL = "SELECT P.childStatementCodeLine FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine WHERE S1.codeLine = '"
+                    + leftArg + "' AND S2.statementType = '"
+                    + rhsSynType + "';";
+            }
+            else {
+                if (selectType == "variable") {
+                    cout << "return respective var" << endl;
+                    getParentSQL = "SELECT DISTINCT V.variableName FROM Variable V JOIN (SELECT P.childStatementCodeLine FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine WHERE S1.codeLine = '"
+                        + leftArg + "' AND S2.statementType = '"
+                        + rhsSynType + "') AS Subquery ON V.statementCodeLine = Subquery.childStatementCodeLine;";
+                }
+                else if (selectType == "constant") {
+                    cout << "return respective constantValue" << endl;
+                    getParentSQL = "SELECT DISTINCT C.constantValue FROM Constant C JOIN (SELECT P.childStatementCodeLine FROM ParentChildRelation P JOIN Statement S1 ON P.parentStatementCodeLine = S1.codeLine JOIN Statement S2 ON P.childStatementCodeLine = S2.codeLine WHERE S1.codeLine = '"
+                        + leftArg + "' AND S2.statementType = '"
+                        + rhsSynType + "') AS Subquery ON C.statementCodeLine = Subquery.childStatementCodeLine;";
+                }
+            }
         }
         else {
-            cout << "rhs stmt line" << endl;
+            cout << "rhs lineNumber" << endl;
             string getParent = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE parentStatementCodeLine = '"
                                +leftArg+"' AND childStatementCodeLine = '"
                                +rightArg+"';";
@@ -704,6 +734,10 @@ void Database::getParent(string selectVar, string selectType, string leftArg, st
                 }
                 else if (selectType == "stmt") {
                     getParentSQL = "SELECT DISTINCT CodeLine FROM Statement";
+                }
+                else {
+                    getParentSQL = "SELECT DISTINCT CodeLine FROM Statement WHERE statementType ='"
+                        +selectType+"';";
                 }
             }
             dbResults.clear();
