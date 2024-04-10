@@ -68,25 +68,3 @@ void QueryProcessor::getModifies_Pattern_OutputVar(string& patternRightArg, bool
         Database::getCombo_Modifies_Pattern_OutputVar(res, databaseResults);
     }
 }
-
-void QueryProcessor::getModifies_OutputParents(string& rightArg, string& selectType, vector<string>& databaseResults, Query queryToExecute) {
-    //Retrieve modification statements
-    vector<string> LHSLines;
-    Database::getModifies_OutputStmt(rightArg, LHSLines,queryToExecute);
-
-    //Concatenate lines if not empty
-    string childrenLines;
-    if (!LHSLines.empty()) {
-        childrenLines = QueryProcessor::concatenateWithCommas(LHSLines);
-    }
-
-    //Retrieve parent lines based on children lines
-    vector<string> ParentLinesArr;
-//    Database::getCombo_ParentT_Pattern_OutputStmt(childrenLines, ParentLinesArr);
-
-    //Process parent lines and update databaseResults
-    if (!ParentLinesArr.empty()) {
-        string ParentLines = QueryProcessor::concatenateWithCommas(ParentLinesArr);
-        Database::getModifies_OutputParents(selectType, ParentLines, databaseResults);
-    }
-}

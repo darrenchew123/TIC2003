@@ -39,7 +39,7 @@ public:
 
     static void getVariables(vector<string>& results);
 
-    static void getVariablesPattern(vector<string>& results, string rhsArgs);
+    static void getVariablesPattern(vector<string>& results, string rhsArgs, bool isSubExpression);
 
     static void insertConstant(int statementCodeLine, int constantValue);
 
@@ -73,7 +73,7 @@ public:
 
     static void getModifies_OutputStmt(string rightArg, vector<string>& results, Query queryToExecute);
 
-    static void getModifies_OutputParents(string selectType, string ParentLines, vector<string>& results);
+    static void getModifies_OutputParents(string leftArg, vector<string>& results);
 
     static void getModifies_OutputProcedures(string rightArg, vector<string>& results, Query queryToExecute);
 
@@ -89,11 +89,11 @@ public:
 
     static void getUses_OutputVar(string leftArg, vector<string>& results, Query queryToExecute);
 
-    static void getUses_OutputStmt(string leftArg, vector<string>& results, Query queryToExecute);
+    static void getUses_OutputStmt(string leftArg, string rightArg, vector<string>& results, Query queryToExecute);
 
     static void getUses_OutputProcedures(string leftArg, vector<string>& results, Query queryToExecute);
 
-    static void getUses_OutputType(string leftArg, vector<string>& results, Query queryToExecute);
+    static void getUses_OutputType(string leftArg, string rightArg,vector<string>& results, Query queryToExecute);
 
     static void getCalls_OutputProcedures(string leftArg, string rightArg, vector<string>& results, Query queryToExecute);
 

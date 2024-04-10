@@ -52,7 +52,7 @@ void SourceProcessor::process(string &program) {
 
     ExpressionProcessing::processExpression(statementInfo);
     ModifiesProcessing::processModifies(statementInfo,parentChildMapping);
-    UsesProcessing::processUses(statementInfo);
+    UsesProcessing::processUses(statementInfo,parentChildMapping);
     CallsProcessing::processCalls(statementInfo);
     AncestorProcessing::processAncestor(parentChildMapping);
 }

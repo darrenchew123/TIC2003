@@ -31,5 +31,4 @@ public:
 
     static void getModifies_Pattern_OutputVar(string& patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute);
 
-    static void getModifies_OutputParents(string& rightArg, string& selectType, vector<string>& databaseResults,Query queryToExecute);
 };

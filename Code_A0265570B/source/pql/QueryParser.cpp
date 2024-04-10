@@ -55,7 +55,7 @@ string QueryParser::checkQuotationMarks_returnArg(int& currIdx, const vector<str
 
 //to store variable/s declared eg. assign a1 , oioioi ; while w1 , w2 ;
 vector<string> QueryParser::Utility_appendObject(const vector<string>& tokens, string currToken, int& i, string end, string delimiter) {
-
+    cout << "Check multiselect in append " << tokens[i] << endl;
     vector<string> objects;
 
     while (currToken != end) {
@@ -73,8 +73,8 @@ vector<string> QueryParser::Utility_appendObject(const vector<string>& tokens, s
 }
 
 Query QueryParser::parser(const vector<string>& tokens) {
+    cout << "Starting parsing process." << endl;
     Query query;
-
     unordered_set<string> dataType{ "assign","while","stmt", "variable", "print", "read", "if", "constant", "procedure", "if" };
     unordered_set<string> conditionTypes{ "Follows", "Modifies", "Uses", "Parent" , "Next", "calls" };
     unordered_set<string> patternTypes{ "pattern" };
@@ -93,10 +93,12 @@ Query QueryParser::parser(const vector<string>& tokens) {
             }
         }
         else if (tokens[i] == "Select") {
+            cout << "Processing Select clause for variable: " << tokens[i] << endl;
 
             i++;
             if (tokens[i] == "<") {
                 i++;
+                cout << "Check multiselect " << tokens[i] << endl;
                 vector<string> vars = Utility_appendObject(tokens, tokens[i], i, ">", ",");
                 for (string var : vars) {
                     if (query.declaredVariables.count(var)) {
@@ -164,6 +166,15 @@ Query QueryParser::parser(const vector<string>& tokens) {
             query.patterns.push_back(pattern);
         }
     }
+    cout << "Declared variables: " << endl;
+    for (const auto& varName : query.declaredVariables) {
+        cout << varName.first << " " << varName.second << endl;
+    }
+    cout << "Declared select: " << endl;
+    for (const auto& multiSelect : query.multiSelectVar) {
+        cout << multiSelect << endl;
+    }
+    cout << endl;
 
     return query;
 }

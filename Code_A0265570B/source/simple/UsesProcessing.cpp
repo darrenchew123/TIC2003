@@ -1,7 +1,14 @@
 
 #include "UsesProcessing.h"
 
-void UsesProcessing::processUses(vector<StatementInfo>& statementInfo) {
+void UsesProcessing::processUses(vector<StatementInfo>& statementInfo, multimap<int, int> parentChildMapping) {
+    map<int, string> lineToTypeMapping;
+    map<int, set<string>> usesMap;
+
+    for (const auto& info : statementInfo) {
+        lineToTypeMapping[info.lineCount] = info.statementType;
+    }
+
     for (const auto& info : statementInfo) {
         vector<string> usedVariables;
         if (info.statementType == "assign") {
@@ -11,7 +18,32 @@ void UsesProcessing::processUses(vector<StatementInfo>& statementInfo) {
         }
 
         for (const auto& var : usedVariables) {
-            Database::insertUses(info.lineCount, var);
+            updateUsesForAncestors(info.lineCount, var, parentChildMapping, lineToTypeMapping, usesMap);
+        }
+    }
+
+    // Insert uses relationships into the database
+    for (const auto& useEntry : usesMap) {
+        for (const auto& variable : useEntry.second) {
+            Database::insertUses(useEntry.first, variable);
+        }
+    }
+}
+
+void UsesProcessing::updateUsesForAncestors(int line, string variableName,  multimap<int, int> parentChildMapping, map<int, string> lineToTypeMapping, map<int, set<string>>& usesMap) {
+    stack<int> ancestors;
+    ancestors.push(line);
+
+    while (!ancestors.empty()) {
+        int currentLine = ancestors.top();
+        ancestors.pop();
+
+        usesMap[currentLine].insert(variableName);
+
+        for (auto pair : parentChildMapping) {
+            if (pair.second == currentLine) {
+                ancestors.push(pair.first);
+            }
         }
     }
 }
