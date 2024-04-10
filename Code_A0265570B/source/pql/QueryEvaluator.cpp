@@ -102,20 +102,9 @@ void QueryEvaluator::process_multiSelect(string selectVar, string selectType, st
             }
             cout << endl;
 
+            results.insert(results.end(), curr.begin(), curr.end());
 
-            // Merge curr and results into a single vector without duplicates
-            sort(curr.begin(), curr.end()); // Sort curr if not already sorted
-            sort(results.begin(), results.end()); // Sort results if not already sorted
-
-            vector<string> merged;
-            merge(curr.begin(), curr.end(),
-                  results.begin(), results.end(),
-                  back_inserter(merged));
-
-            // Remove duplicates from the merged vector
-            merged.erase(unique(merged.begin(), merged.end()), merged.end());
-
-            results = merged;
+            
             curr.clear();
 
 
@@ -151,20 +140,8 @@ void QueryEvaluator::process_multiSelect(string selectVar, string selectType, st
             }
             cout << endl;
 
+            results.insert(results.end(), curr.begin(), curr.end());
 
-            // Merge curr and results into a single vector without duplicates
-            sort(curr.begin(), curr.end()); // Sort curr if not already sorted
-            sort(results.begin(), results.end()); // Sort results if not already sorted
-
-            vector<string> merged;
-            merge(curr.begin(), curr.end(),
-                  results.begin(), results.end(),
-                  back_inserter(merged));
-
-            // Remove duplicates from the merged vector
-            merged.erase(unique(merged.begin(), merged.end()), merged.end());
-
-            results = merged;
             curr.clear();
 
 
@@ -428,7 +405,9 @@ void QueryEvaluator::processSimpleQuery(string selectVar, string selectType, str
                 cout << "Parent" << endl;
                 Database::getParent(selectVar, selectType, leftArg, rightArg, databaseResults, queryToExecute);
             }
-
+        }
+        else if (patternType == "pattern") {
+            Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, databaseResults, queryToExecute);
         }
         else {
             Database::getStatementType(selectType, databaseResults);
