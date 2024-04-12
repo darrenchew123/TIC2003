@@ -103,6 +103,7 @@ public:
 
     static void getParentT(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
 
+    static bool checkCallsRelationship(string caller, string callee);
 
 private:
     static sqlite3* dbConnection;
