@@ -103,6 +103,8 @@ public:
 
     static void getParentT(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
 
+    static void getParent_OutputProcedures(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
+
     static bool checkCallsRelationship(string caller, string callee);
 
 private:
