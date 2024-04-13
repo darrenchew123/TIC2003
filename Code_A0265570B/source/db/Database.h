@@ -5,6 +5,7 @@
 #include <iostream>
 #include "sqlite3.h"
 #include "../pql/Query.h"
+#include "ParentT_HelperFunctions.h"
 
 
 using namespace std;
@@ -103,7 +104,11 @@ public:
 
     static void getParentT(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
 
-    static void getParent_OutputProcedures(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
+    static void prepareContext_Parent(const std::unordered_map<std::string, std::string>& declaredVariables,
+        const std::string& leftArg, const std::string& rightArg,
+        bool& isLhsSynonym, std::string& lhsSynType,
+        bool& isRhsSynonym, std::string& rhsSynType,
+        bool& ancestorExists);
 
     static bool checkCallsRelationship(string caller, string callee);
 

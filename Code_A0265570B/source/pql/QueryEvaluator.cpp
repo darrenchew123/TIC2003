@@ -20,7 +20,7 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
 
     selectType = queryToExecute.selectType;
     selectVar = queryToExecute.selectVar;
-    debugPrintQuery(queryToExecute);
+    //debugPrintQuery(queryToExecute);
 
     extractConditions(queryToExecute, conditionType, isT, leftArg, rightArg);
     extractPatterns(queryToExecute, patternType, patternLeftArg, patternRightArg, isSubexpression);
@@ -37,6 +37,9 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
         cout << "single select + single cond" << endl;
         HandleSimpleQueries::processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults, queryToExecute);
     }
+
+    cout << endl;
+
     output.insert(output.end(), databaseResults.begin(), databaseResults.end());
 }
 
