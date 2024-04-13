@@ -1,5 +1,5 @@
 #include "HandleMultipleConditions.h"
-
+#include <algorithm>
 
 void HandleMultipleConditions::processSingleSelectMultiCond(string selectVar, string selectType, string conditionType, bool isT, string leftArg, string rightArg, string patternType, string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& databaseResults, Query queryToExecute) {
     vector<string> results;
@@ -10,8 +10,17 @@ void HandleMultipleConditions::processSingleSelectMultiCond(string selectVar, st
         processCondition(queryToExecute.conditions[i], selectVar, selectType, patternType, patternLeftArg, patternRightArg, isSubexpression, curr, queryToExecute);
 
         if (i == 0) {
-            results.swap(curr);
-        } else {
+            //results.swap(curr);
+            results = curr;
+
+            cout << "results: ";
+            for (const auto& a : results) {
+                cout << a << " ";
+            }
+            cout << endl;
+
+        }
+        else {
             intersectResults(results, curr);
         }
         curr.clear();
@@ -28,12 +37,11 @@ void HandleMultipleConditions::processSingleSelectMultiCond(string selectVar, st
 }
 void HandleMultipleConditions::intersectResults(vector<string>& results, vector<string> curr) {
     vector<string> intersection;
-    if (!curr.empty()) {
-        sort(curr.begin(), curr.end());
-        sort(results.begin(), results.end());
-        set_intersection(curr.begin(), curr.end(), results.begin(), results.end(), back_inserter(intersection));
-        results = intersection;
-    }
+
+    sort(curr.begin(), curr.end());
+    sort(results.begin(), results.end());
+    set_intersection(curr.begin(), curr.end(), results.begin(), results.end(), back_inserter(intersection));
+    results = intersection;
 
     cout << "results: ";
     for (const auto& a : results) {
