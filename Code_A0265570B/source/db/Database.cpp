@@ -455,19 +455,99 @@ void Database::getModifies_OutputVar(string leftArg, vector<string>& results, Qu
     executeAndProcessSQL(getModifies_OutputVarSQL,results);
 }
 
-void Database::getModifies_OutputStmt(string rightArg, vector<string>& results, Query queryToExecute) {
+void Database::getModifies_OutputStmt(string leftArg, string rightArg, vector<string>& results, Query query) {
 
     string getModifies_OutputStmtSQL;
-    string type = queryToExecute.declaredVariables[rightArg];
-    if(queryToExecute.declaredVariables[rightArg]=="variable" || rightArg == "_"){
-        getModifies_OutputStmtSQL = "SELECT statementCodeLine FROM Modifies;";
+
+    string selectType = query.selectType;
+
+    bool islhsSyn = 0, isrhsSyn = 0;
+    string lhsSynType, rhsSynType;
+    bool AncestorExists = 0;
+
+    Database::prepareContext_Parent(query.declaredVariables, leftArg, rightArg, islhsSyn, lhsSynType, isrhsSyn, rhsSynType, AncestorExists);
+   
+
+    if (leftArg == "_") { //lhs _
+        if (rightArg == "_") {
+            cout << "Select s such that Modifies(_, _)" << endl;
+            getModifies_OutputStmtSQL = "SELECT DISTINCT statementCodeLine FROM Modifies;";
+        }
+        else if (isrhsSyn) {
+            if (rhsSynType == "stmt") {
+                cout << "Select s such that Modifies(_, s)" << endl;
+                getModifies_OutputStmtSQL = "SELECT DISTINCT statementCodeLine FROM Modifies;";
+            }
+        }
+    }
+    else if (islhsSyn) { //lhs syn
+
+        if (lhsSynType == "variable" && rightArg == "_") {
+            getModifies_OutputStmtSQL = "SELECT DISTINCT statementCodeLine FROM Modifies;";
+        }
+        else if (lhsSynType == "stmt" && rhsSynType == "stmt") {
+            getModifies_OutputStmtSQL = "SELECT DISTINCT statementCodeLine FROM Modifies;";
+        }
+        else if (lhsSynType == "stmt" && rightArg == "_") {
+            getModifies_OutputStmtSQL = "SELECT DISTINCT statementCodeLine FROM Modifies";
+        }
+        else if (rhsSynType == "variable" && lhsSynType == "stmt") {
+            cout << "Select s such that Modifies(s, v)" << endl;
+            getModifies_OutputStmtSQL = "SELECT DISTINCT statementCodeLine FROM Modifies";
+        }
+        else if (rhsSynType == "variable" || rightArg == "_") {
+            cout << "Select s such that Modifies(w/i/a/r/p, v)" << endl;
+            getModifies_OutputStmtSQL = "SELECT DISTINCT M.statementCodeLine FROM Modifies M\n"
+                "JOIN Statement S ON M.statementCodeLine = s.codeLine\n"
+                "WHERE S.statementType = '"
+                + lhsSynType + "'";
+        }
+        else {
+            getModifies_OutputStmtSQL = "SELECT DISTINCT statementCodeLine FROM Modifies WHERE variableName = '"
+                + rightArg + "';";
+        }
     }
     else {
-        getModifies_OutputStmtSQL = "SELECT statementCodeLine FROM Modifies WHERE variableName = '"
-                                           + rightArg + "';";
+        getModifies_OutputStmtSQL = "SELECT DISTINCT statementCodeLine FROM Modifies WHERE variableName = '"
+            + rightArg + "';";
     }
+
     executeAndProcessSQL(getModifies_OutputStmtSQL,results);
 }
+
+//void Database::getModifies_OutputAssign(string leftArg, string rightArg, vector<string>& results, Query query) {
+//
+//    string getModifies_OutputAssignSQL;
+//
+//    string selectType = query.selectType;
+//
+//    bool islhsSyn = 0, isrhsSyn = 0;
+//    string lhsSynType, rhsSynType;
+//    bool AncestorExists = 0;
+//
+//    Database::prepareContext_Parent(query.declaredVariables, leftArg, rightArg, islhsSyn, lhsSynType, isrhsSyn, rhsSynType, AncestorExists);
+//
+//    if (lhsSynType == "while" || lhsSynType == "if") {
+//        cout << "Select a such that Modifies(w/i,_)" << endl;
+//    }
+//
+//    if (lhsSynType == "variable" || lhsSynType == "stmt") {
+//        cout << "Select a such that Modifies(s/v,_)" << endl;
+//        getModifies_OutputAssignSQL = "SELECT DISTINCT M.statementCodeLine FROM Modifies M\n"
+//                "JOIN Statement S ON M.statementCodeLine = s.codeLine\n"
+//                "WHERE S.statementType = '"
+//            + selectType + "'";
+//    }
+//    else {
+//        cout << "Select a such that Modifies(_,_)" << endl;
+//        getModifies_OutputAssignSQL = "SELECT DISTINCT M.statementCodeLine FROM Modifies M\n"
+//            "JOIN Statement S ON M.statementCodeLine = s.codeLine\n"
+//            "WHERE S.statementType = '"
+//            + selectType + "'";
+//    }
+//
+//    executeAndProcessSQL(getModifies_OutputAssignSQL, results);
+//}
 
 void Database::getModifies_OutputProcedures(string rightArg, vector<string>& results, Query queryToExecute) {
     string getModifies_OutputProceduresSQL;
@@ -547,23 +627,23 @@ void Database::getModifies_OutputParents(string leftArg, vector<string>& results
     executeAndProcessSQL(getModifies_OutputParentsSQL,results);
 }
 
-void Database::getCombo_Modifies_Pattern_OutputProcedure(string res, vector<string>& results) {
-    string getCombo_Modifies_Pattern_OutputProcedureSQL = "SELECT DISTINCT procedureName FROM Statement WHERE codeLine in ("
-        + res + ");";
-    executeAndProcessSQL(getCombo_Modifies_Pattern_OutputProcedureSQL,results);
-}
-
-void Database::getCombo_Modifies_Pattern_OutputAssign(string res, vector<string>& results) {
-    string getCombo_Modifies_Pattern_OutputAssignSQL = "SELECT statementCodeLine FROM Modifies WHERE statementCodeLine in ("
-                                                       + res + "); ";
-    executeAndProcessSQL(getCombo_Modifies_Pattern_OutputAssignSQL,results);
-}
-
-void Database::getCombo_Modifies_Pattern_OutputVar(string res, vector<string>& results) {
-    string getCombo_Modifies_Pattern_OutputVarSQL = "SELECT variableName FROM Modifies WHERE statementCodeLine in ("
-                                                    + res + "); ";
-    executeAndProcessSQL(getCombo_Modifies_Pattern_OutputVarSQL,results);
-}
+//void Database::getCombo_Modifies_Pattern_OutputProcedure(string res, vector<string>& results) {
+//    string getCombo_Modifies_Pattern_OutputProcedureSQL = "SELECT DISTINCT procedureName FROM Statement WHERE codeLine in ("
+//        + res + ");";
+//    executeAndProcessSQL(getCombo_Modifies_Pattern_OutputProcedureSQL,results);
+//}
+//
+//void Database::getCombo_Modifies_Pattern_OutputAssign(string res, vector<string>& results) {
+//    string getCombo_Modifies_Pattern_OutputAssignSQL = "SELECT statementCodeLine FROM Modifies WHERE statementCodeLine in ("
+//                                                       + res + "); ";
+//    executeAndProcessSQL(getCombo_Modifies_Pattern_OutputAssignSQL,results);
+//}
+//
+//void Database::getCombo_Modifies_Pattern_OutputVar(string res, vector<string>& results) {
+//    string getCombo_Modifies_Pattern_OutputVarSQL = "SELECT variableName FROM Modifies WHERE statementCodeLine in ("
+//                                                    + res + "); ";
+//    executeAndProcessSQL(getCombo_Modifies_Pattern_OutputVarSQL,results);
+//}
 
 void Database::getCalls_OutputProcedures(string leftArg, string rightArg, vector<string>& results, Query queryToExecute){
     string getCalls_OutputProceduresSQL;

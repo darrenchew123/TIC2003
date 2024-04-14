@@ -74,7 +74,9 @@ public:
 
     static void getModifies_OutputVar(string leftArg, vector<string>& results, Query queryToExecute);
 
-    static void getModifies_OutputStmt(string rightArg, vector<string>& results, Query queryToExecute);
+    static void getModifies_OutputStmt(string leftArg, string rightArg, vector<string>& results, Query query);
+
+    static void getModifies_OutputAssign(string leftArg, string rightArg, vector<string>& results, Query query);
 
     static void getModifies_OutputParents(string leftArg, vector<string>& results);
 
@@ -84,11 +86,11 @@ public:
 
     static void getPattern_OutputStmt(string patternLeftArg, string patternRightArg, bool isSubexpression, vector<string>& results, Query queryToExecute);
 
-    static void getCombo_Modifies_Pattern_OutputProcedure(string res, vector<string>& results);
+    /*static void getCombo_Modifies_Pattern_OutputProcedure(string res, vector<string>& results);
 
     static void getCombo_Modifies_Pattern_OutputAssign(string res, vector<string>& results);
 
-    static void getCombo_Modifies_Pattern_OutputVar(string res, vector<string>& results);
+    static void getCombo_Modifies_Pattern_OutputVar(string res, vector<string>& results);*/
 
     static void getUses_OutputVar(string leftArg, vector<string>& results, Query queryToExecute);
 
