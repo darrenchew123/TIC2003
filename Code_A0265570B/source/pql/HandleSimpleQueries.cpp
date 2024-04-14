@@ -25,7 +25,7 @@ void HandleSimpleQueries::handleProcedureSelectType(const string& conditionType,
         Database::getModifies_OutputProcedures(rightArg, databaseResults, queryToExecute);
     } else if (conditionType == "Uses") {
         Database::getUses_OutputProcedures(leftArg, databaseResults, queryToExecute);
-    } else if (conditionType == "calls") {
+    } else if (conditionType == "Calls") {
         if (isT) {
             Database::getCallsT_OutputProcedures(leftArg, rightArg, databaseResults, queryToExecute);
         } else {
