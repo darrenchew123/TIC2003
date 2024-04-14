@@ -1,6 +1,4 @@
 #include "Database.h"
-#include "ParentT_HelperFunctions.h"
-#include "Parent_HelperFunctions.h"
 #include <unordered_map>
 #include <unordered_set>
 #include <queue>
@@ -226,13 +224,18 @@ void Database::getVariables(vector<string>& results) {
     string getVariablesSQL = "SELECT DISTINCT variableName FROM Variable;";
     executeAndProcessSQL(getVariablesSQL,results);
 }
-void Database::getVariablesPattern(vector<string>& results, string rhsArgs, bool isSubexpression) {
+void Database::getVariablesPattern(vector<string>& results,string lhsArgs ,string rhsArgs, bool isSubexpression, Query query) {
     string getVariablesPatternSQL;
     if(isSubexpression){
         getVariablesPatternSQL = "select DISTINCT LHSExpression from Pattern where RHSExpression like '%"
                                         + rhsArgs + "%';";
     }else{
-        getVariablesPatternSQL = "select DISTINCT LHSExpression from Pattern where RHSExpression like '"
+        if (rhsArgs == "_") {
+            getVariablesPatternSQL = "select DISTINCT LHSExpression from Pattern where LHSExpression like '"
+                + lhsArgs + "';";
+        }
+        else 
+            getVariablesPatternSQL = "select DISTINCT LHSExpression from Pattern where RHSExpression like '"
                                  + rhsArgs + "';";
     }
     cout << "getVariablesPatternSQL " << getVariablesPatternSQL << endl;
@@ -388,22 +391,19 @@ void Database::getUses_OutputType(string leftArg, string rightArg, vector<string
 
 void Database::getUses_OutputProcedures(string leftArg, vector<string>& results, Query queryToExecute){
     string getUses_OutputVar;
-    
-    if(queryToExecute.declaredVariables[leftArg]=="procedure"){ //lhs syn
-        cout << "lhs syn" << endl;
+    if(queryToExecute.declaredVariables[leftArg]=="procedure"){
         getUses_OutputVar = "SELECT DISTINCT p.procedureName\n"
                             "FROM Procedure p\n"
                             "JOIN Statement s ON p.procedureName = s.procedureName\n"
                             "JOIN Uses u ON s.codeLine = u.statementCodeLine";
-    }
-    else {
+    }else {
         cout << "lhs codeline" << endl;
         getUses_OutputVar = "SELECT DISTINCT S.procedureName FROM Statement S\n"
-            "JOIN Uses U ON U.statementCodeLine = S.codeLine\n"
-            "JOIN Variable V ON U.variableName = V.variableName AND U.statementCodeLine = V.statementCodeLine\n"
-            "WHERE U.statementCodeLine = '"
-            +leftArg+"' AND V.variableName = '"
-            +queryToExecute.conditions[0].rightArg+"'";
+                            "JOIN Uses U ON U.statementCodeLine = S.codeLine\n"
+                            "JOIN Variable V ON U.variableName = V.variableName AND U.statementCodeLine = V.statementCodeLine\n"
+                            "WHERE U.statementCodeLine = '"
+                            +leftArg+"' AND V.variableName = '"
+                            +queryToExecute.conditions[0].rightArg+"'";
     }
     executeAndProcessSQL(getUses_OutputVar,results);
 }
@@ -436,11 +436,12 @@ int Database::callback(void* NotUsed, int argc, char** argv, char** azColName) {
 void Database::getModifies_OutputVar(string leftArg, vector<string>& results, Query queryToExecute) {
     string getModifies_OutputVarSQL;
     string type = queryToExecute.declaredVariables[leftArg];
+
     if(type =="stmt" || type=="procedure"){
         getModifies_OutputVarSQL ="SELECT distinct variableName FROM Modifies;";
     }
     else if(type == "while" || type == "if" || type == "read" || type == "assign"){
-        getModifies_OutputVarSQL = "select variableName\n"
+        getModifies_OutputVarSQL = "select DISTINCT variableName\n"
                                    "FROM Modifies WHERE statementCodeLine in (\n"
                                    "SELECT statementCodeLine from Modifies\n"
                                    "INTERSECT\n"
@@ -448,7 +449,7 @@ void Database::getModifies_OutputVar(string leftArg, vector<string>& results, Qu
                                    + type + "');";
     }
     else{
-        getModifies_OutputVarSQL = "SELECT variableName FROM Modifies WHERE statementCodeLine ='"
+        getModifies_OutputVarSQL = "SELECT DISTINCT variableName FROM Modifies WHERE statementCodeLine ='"
                                    + leftArg + "';";
     }
     cout << "getModifies_OutputVarSQL " << getModifies_OutputVarSQL <<endl;
@@ -570,13 +571,13 @@ void Database::getCalls_OutputProcedures(string leftArg, string rightArg, vector
     string leftType = queryToExecute.declaredVariables[leftArg];
     string rightType = queryToExecute.declaredVariables[rightArg];
     if(leftType == "procedure" && rightArg == "_"){
-        getCalls_OutputProceduresSQL = "SELECT procedureCaller FROM Call;";
+        getCalls_OutputProceduresSQL = "SELECT DISTINCT procedureCaller FROM Call;";
     }
     else if(rightType == "procedure" && leftArg == "_"){
         getCalls_OutputProceduresSQL = "SELECT procedureCallee FROM Call;";
     }
     else if(leftType == "procedure" || leftArg == "_"){
-        getCalls_OutputProceduresSQL = "SELECT procedureCaller FROM Call WHERE procedureCallee = '"
+        getCalls_OutputProceduresSQL = "SELECT DISTINCT procedureCaller FROM Call WHERE procedureCallee = '"
                                               + rightArg + "'; ";
     }
     else if (rightType== "procedure"|| rightArg == "_" ){
@@ -591,13 +592,13 @@ void Database::getCallsT_OutputProcedures(string leftArg, string rightArg, vecto
     string leftType = queryToExecute.declaredVariables[leftArg];
     string rightType = queryToExecute.declaredVariables[rightArg];
     if(leftType == "procedure" && rightArg == "_"){
-        getCallsT_OutputProceduresSQL = "SELECT procedureCaller FROM CallT;";
+        getCallsT_OutputProceduresSQL = "SELECT DISTINCT procedureCaller FROM CallT;";
     }
     else if(rightType == "procedure" && leftArg == "_"){
         getCallsT_OutputProceduresSQL = "SELECT procedureCallee FROM CallT;";
     }
     else if(leftType == "procedure" || leftArg == "_"){
-        getCallsT_OutputProceduresSQL = "SELECT procedureCaller FROM CallT WHERE procedureCallee = '"
+        getCallsT_OutputProceduresSQL = "SELECT DISTINCT procedureCaller FROM CallT WHERE procedureCallee = '"
                                        + rightArg + "'; ";
     }
     else if (rightType== "procedure" || rightArg == "_" ){
@@ -610,40 +611,42 @@ void Database::getCallsT_OutputProcedures(string leftArg, string rightArg, vecto
 void Database::getParent(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query) {
 
     dbResults.clear();
-
     string getParentSQL;
+
     bool islhsSyn = 0, isrhsSyn = 0;
     string lhsSynType, rhsSynType;
     bool AncestorExists = 0;
 
     Database::prepareContext_Parent(query.declaredVariables, leftArg, rightArg, islhsSyn, lhsSynType, isrhsSyn, rhsSynType, AncestorExists);
 
+
+
+
     if (leftArg == "_") {
         cout << "rhs line number" << endl;
         string getParent = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE childStatementCodeLine = '"
-            + rightArg + "';";
+                           + rightArg + "';";
         sqlite3_exec(dbConnection, getParent.c_str(), callback, 0, &errorMessage);
-
         Parent_HelperFunctions::handleWildcardLHS(getParentSQL, selectVar, selectType, lhsSynType, rhsSynType, leftArg, rightArg, isrhsSyn, results, dbResults);
+
     }
     else if (islhsSyn) {
-        Parent_HelperFunctions::handleSynonymLHS(getParentSQL, selectVar, selectType, lhsSynType, rhsSynType, leftArg, rightArg, isrhsSyn, results, dbResults);
+        Parent_HelperFunctions::handleSynonymLHS(getParentSQL, selectVar, selectType, lhsSynType, rhsSynType, leftArg,
+                                                 rightArg, isrhsSyn, results, dbResults);
     }
     else {
         cout << "rhs lineNumber" << endl;
         string getParent = "SELECT parentStatementCodeLine FROM ParentChildRelation WHERE parentStatementCodeLine = '"
-            + leftArg + "' AND childStatementCodeLine = '"
-            + rightArg + "';";
+                           + leftArg + "' AND childStatementCodeLine = '"
+                           + rightArg + "';";
         sqlite3_exec(dbConnection, getParent.c_str(), callback, 0, &errorMessage);
 
         Parent_HelperFunctions::handleLineNumberLHS(getParentSQL, selectVar, selectType, lhsSynType, rhsSynType, leftArg, rightArg, isrhsSyn, results, dbResults);
     }
-
     executeAndProcessSQL(getParentSQL,results);
 }
 
 void Database::getParentT(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query) {
-
     dbResults.clear();
 
     string getParentSQL;
@@ -655,31 +658,31 @@ void Database::getParentT(string selectVar, string selectType, string leftArg, s
 
     if (leftArg == "_") {
         string getGrandParent = "SELECT ancestorStatementCodeLine FROM AncestorRelation WHERE childStatementCodeLine = '"
-            + rightArg + "';";
+                                + rightArg + "';";
         sqlite3_exec(dbConnection, getGrandParent.c_str(), callback, 0, &errorMessage);
         ParentT_HelperFunctions::handleWildcardLHS(getParentSQL,selectVar, selectType, lhsSynType, rhsSynType, leftArg, rightArg, isrhsSyn, AncestorExists, results, dbResults);
     }
     else if (islhsSyn) {
         ParentT_HelperFunctions::handleSynonymLHS(getParentSQL,selectVar, selectType, lhsSynType, rhsSynType, leftArg, rightArg, isrhsSyn, AncestorExists, results, dbResults);
     }
+
     else {
         string getGrandParent = "SELECT ancestorStatementCodeLine FROM AncestorRelation WHERE ancestorStatementCodeLine = '"
-            + leftArg + "' AND childStatementCodeLine = '"
-            + rightArg + "';";
+                                + leftArg + "' AND childStatementCodeLine = '"
+                                + rightArg + "';";
         sqlite3_exec(dbConnection, getGrandParent.c_str(), callback, 0, &errorMessage);
         ParentT_HelperFunctions::handleLineNumberLHS(getParentSQL, selectVar, selectType, lhsSynType, rhsSynType, leftArg, rightArg, isrhsSyn, AncestorExists, results, dbResults);
     }
-
     executeAndProcessSQL(getParentSQL,results);
 }
-
 void Database::prepareContext_Parent(const std::unordered_map<std::string, std::string>& declaredVariables,
-    const std::string& leftArg, const std::string& rightArg,
-    bool& isLhsSynonym, std::string& lhsSynType,
-    bool& isRhsSynonym, std::string& rhsSynType,
-    bool& ancestorExists) {
+                                     const std::string& leftArg, const std::string& rightArg,
+                                     bool& isLhsSynonym, std::string& lhsSynType,
+                                     bool& isRhsSynonym, std::string& rhsSynType,
+                                     bool& ancestorExists) {
 
-    std::cout << "Starting prepareContext function..." << std::endl;
+
+    cout << "Starting prepareContext function..." << endl;
 
     isLhsSynonym = declaredVariables.count(leftArg) > 0;
     if (isLhsSynonym) {
@@ -698,7 +701,6 @@ void Database::prepareContext_Parent(const std::unordered_map<std::string, std::
     else {
         std::cout << "No RHS Synonym for argument: " << rightArg << std::endl;
     }
-
     std::cout << "Executing SQL to check for ancestor existence..." << std::endl;
     std::string getAncestor = "SELECT * FROM AncestorRelation;";
     sqlite3_exec(dbConnection, getAncestor.c_str(), callback, 0, &errorMessage);
@@ -707,23 +709,22 @@ void Database::prepareContext_Parent(const std::unordered_map<std::string, std::
     std::cout << "Ancestor relation exists: " << (ancestorExists ? "Yes" : "No") << std::endl;
     dbResults.clear();
 
-    std::cout << "Finished prepareContext function." << std::endl;
-}
+    std::cout << "Finished prepareContext function." << std::endl;}
 
-bool Database::checkCallsRelationship(string caller, string callee) {
+bool Database::executeCheckQuery(string sqlQuery, vector<string> params) {
     sqlite3_stmt* stmt = nullptr;
-    std::string sqlQuery = "SELECT 1 FROM Call WHERE procedureCaller = ? AND procedureCallee = ?";
 
     if (sqlite3_prepare_v2(dbConnection, sqlQuery.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
         std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(dbConnection) << std::endl;
         return false;
     }
 
-    if (sqlite3_bind_text(stmt, 1, caller.c_str(), -1, SQLITE_STATIC) != SQLITE_OK ||
-        sqlite3_bind_text(stmt, 2, callee.c_str(), -1, SQLITE_STATIC) != SQLITE_OK) {
-        std::cerr << "Failed to bind parameters: " << sqlite3_errmsg(dbConnection) << std::endl;
-        sqlite3_finalize(stmt);
-        return false;
+    for (size_t i = 0; i < params.size(); ++i) {
+        if (sqlite3_bind_text(stmt, i + 1, params[i].c_str(), -1, SQLITE_STATIC) != SQLITE_OK) {
+            std::cerr << "Failed to bind parameters: " << sqlite3_errmsg(dbConnection) << std::endl;
+            sqlite3_finalize(stmt);
+            return false;
+        }
     }
 
     bool exists = false;
@@ -731,7 +732,47 @@ bool Database::checkCallsRelationship(string caller, string callee) {
         exists = true;
     }
     sqlite3_finalize(stmt);
-
     return exists;
 }
+
+bool Database::checkCallsRelationship(string caller, string callee) {
+    std::string sql = "SELECT 1 FROM Call WHERE procedureCaller = ? AND procedureCallee = ?";
+    return executeCheckQuery(sql, {caller, callee});
+}
+bool Database::checkCallsTRelationship(string caller, string callee) {
+    std::string sql = "SELECT 1 FROM CallT WHERE procedureCaller = ? AND procedureCallee = ?";
+    return executeCheckQuery(sql, {caller, callee});
+}
+
+bool Database::checkParentTRelationship(string parent, string child) {
+    std::string sql = "SELECT 1 FROM AncestorRelation WHERE ancestorStatementCodeLine = ? AND childStatementCodeLine = ?";
+    return executeCheckQuery(sql, {parent, child}) || checkParentRelationship(parent, child);
+}
+
+bool Database::checkParentRelationship(string parent, string child) {
+    std::string sql = "SELECT 1 FROM ParentChildRelation WHERE parentStatementCodeLine = ? AND childStatementCodeLine = ?";
+    return executeCheckQuery(sql, {parent, child});
+}
+
+//bool Database::checkModifiesRelationship(string statementCodeLine, string variableName,  optional<string> statementType = nullopt) {
+//    std::string sqlQuery = R"(
+//        SELECT EXISTS(
+//            SELECT 1 FROM Modifies m
+//            JOIN Statement s ON m.statementCodeLine = s.codeLine
+//            WHERE m.statementCodeLine = ? AND m.variableName = ?
+//    )";
+//
+//    std::vector<std::string> params = {statementCodeLine, variableName};
+//
+//    if (statementType) {
+//        sqlQuery += " AND s.statementType = ?";
+//        params.push_back(*statementType);
+//    }
+//
+//    sqlQuery += ")";
+//
+//    return executeCheckQuery(sqlQuery, params);
+//}
+
+
 

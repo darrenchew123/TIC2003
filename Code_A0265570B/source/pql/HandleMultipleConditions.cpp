@@ -12,15 +12,7 @@ void HandleMultipleConditions::processSingleSelectMultiCond(string selectVar, st
         if (i == 0) {
             //results.swap(curr);
             results = curr;
-
-            cout << "results: ";
-            for (const auto& a : results) {
-                cout << a << " ";
-            }
-            cout << endl;
-
-        }
-        else {
+        } else {
             intersectResults(results, curr);
         }
         curr.clear();
@@ -37,11 +29,12 @@ void HandleMultipleConditions::processSingleSelectMultiCond(string selectVar, st
 }
 void HandleMultipleConditions::intersectResults(vector<string>& results, vector<string> curr) {
     vector<string> intersection;
-
+    
     sort(curr.begin(), curr.end());
     sort(results.begin(), results.end());
     set_intersection(curr.begin(), curr.end(), results.begin(), results.end(), back_inserter(intersection));
     results = intersection;
+    
 
     cout << "results: ";
     for (const auto& a : results) {

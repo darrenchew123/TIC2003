@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include "../db/Database.h"
@@ -17,10 +18,11 @@ public:
 
     static void postProcessNoConditions(vector<vector<string>>  & allResults, vector<string> &combinedResults);
 
-    static void postProcessConditions(vector<vector<string>>  & allResults, vector<string> &combinedResults, Query queryToExecute);
+    static void postProcessConditions(unordered_map<string, pair<int, vector<string>>> resultsMap, vector<string>& combinedResults, const Query& queryToExecute);
 
-    static bool checkRelationship(const std::string& relationshipType, const std::string& entity1, const std::string& entity2, const Query& query);
+    static bool checkRelationship(string relationshipType, string entity1, string entity2, bool isT, Query queryToExecute, Condition condition);
 
+    static void generateCombinations(unordered_map<string, pair<int, vector<string>>> resultsMap, vector<string>& entityOrder, int index, vector<string>& current, vector<vector<string>>& allCombinations);
 
 };
 

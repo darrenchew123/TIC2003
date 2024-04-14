@@ -3,9 +3,12 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <optional>
 #include "sqlite3.h"
 #include "../pql/Query.h"
 #include "ParentT_HelperFunctions.h"
+#include "Parent_HelperFunctions.h"
+
 
 
 using namespace std;
@@ -40,7 +43,7 @@ public:
 
     static void getVariables(vector<string>& results);
 
-    static void getVariablesPattern(vector<string>& results, string rhsArgs, bool isSubExpression);
+    static void getVariablesPattern(vector<string>& results, string lhsArgs ,string rhsArgs, bool isSubExpression, Query query);
 
     static void insertConstant(int statementCodeLine, int constantValue);
 
@@ -70,7 +73,7 @@ public:
 
     static void insertCallsT(const string& caller, const string& callee);
 
-    static void getModifies_OutputVar(string codeLine, vector<string>& results, Query queryToExecute);
+    static void getModifies_OutputVar(string leftArg, vector<string>& results, Query queryToExecute);
 
     static void getModifies_OutputStmt(string rightArg, vector<string>& results, Query queryToExecute);
 
@@ -104,13 +107,23 @@ public:
 
     static void getParentT(string selectVar, string selectType, string leftArg, string rightArg, vector<string>& results, Query query);
 
-    static void prepareContext_Parent(const std::unordered_map<std::string, std::string>& declaredVariables,
-        const std::string& leftArg, const std::string& rightArg,
-        bool& isLhsSynonym, std::string& lhsSynType,
-        bool& isRhsSynonym, std::string& rhsSynType,
-        bool& ancestorExists);
+    static bool executeCheckQuery(string sqlQuery, vector<string> params);
 
     static bool checkCallsRelationship(string caller, string callee);
+
+    static bool checkParentRelationship(string parent, string child);
+
+    static bool checkCallsTRelationship(string caller, string callee);
+
+    static bool checkParentTRelationship(string parent, string child);
+
+    //static bool checkModifiesRelationship(string statementCodeLine, string variableName,  optional<string> statementType);
+
+    static void prepareContext_Parent(const std::unordered_map<std::string, std::string>& declaredVariables,
+                                      const std::string& leftArg, const std::string& rightArg,
+                                      bool& isLhsSynonym, std::string& lhsSynType,
+                                      bool& isRhsSynonym, std::string& rhsSynType,
+                                      bool& ancestorExists);
 
 private:
     static sqlite3* dbConnection;
