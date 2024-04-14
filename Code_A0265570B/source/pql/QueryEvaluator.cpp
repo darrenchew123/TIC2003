@@ -38,7 +38,9 @@ void QueryEvaluator::evaluate(string query, vector<string>& output) {
         cout << "single select + single cond" << endl;
         HandleSimpleQueries::processSimpleQuery(selectVar, selectType, conditionType, isT, leftArg, rightArg, patternType, patternLeftArg, patternRightArg, isSubexpression, databaseResults, queryToExecute);
     }
-    cout << endl << "ANSWER" << endl;
+
+    cout << endl;
+    cout << "ANS" << endl;
     output.insert(output.end(), databaseResults.begin(), databaseResults.end());
 }
 

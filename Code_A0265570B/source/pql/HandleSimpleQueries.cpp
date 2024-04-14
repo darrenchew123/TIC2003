@@ -124,7 +124,7 @@ void HandleSimpleQueries::handleControlFlowSelectType(const string& conditionTyp
         }
     } else if (patternType == "pattern") {
         Database::getPattern_OutputStmt(patternLeftArg, patternRightArg, isSubexpression, databaseResults, queryToExecute);
-    } else {
+    }else {
         Database::getStatementType(selectType, databaseResults);
     }
 }

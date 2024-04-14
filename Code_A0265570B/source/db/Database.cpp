@@ -231,12 +231,11 @@ void Database::getVariablesPattern(vector<string>& results,string lhsArgs ,strin
                                         + rhsArgs + "%';";
     }else{
         if (rhsArgs == "_") {
-            getVariablesPatternSQL = "select DISTINCT LHSExpression from Pattern where LHSExpression like '"
-                + lhsArgs + "';";
+            getVariablesPatternSQL = "select DISTINCT LHSExpression from Pattern;";
         }
-        else 
+        else
             getVariablesPatternSQL = "select DISTINCT LHSExpression from Pattern where RHSExpression like '"
-                                 + rhsArgs + "';";
+                    + rhsArgs + "';";
     }
     cout << "getVariablesPatternSQL " << getVariablesPatternSQL << endl;
     executeAndProcessSQL(getVariablesPatternSQL,results);
@@ -592,13 +591,14 @@ void Database::getCallsT_OutputProcedures(string leftArg, string rightArg, vecto
     string leftType = queryToExecute.declaredVariables[leftArg];
     string rightType = queryToExecute.declaredVariables[rightArg];
     if(leftType == "procedure" && rightArg == "_"){
-        getCallsT_OutputProceduresSQL = "SELECT DISTINCT procedureCaller FROM CallT;";
+        cout << "asdf" << endl;
+        getCallsT_OutputProceduresSQL = "SELECT DISTINCT procedureCaller FROM CallT";
     }
     else if(rightType == "procedure" && leftArg == "_"){
         getCallsT_OutputProceduresSQL = "SELECT procedureCallee FROM CallT;";
     }
     else if(leftType == "procedure" || leftArg == "_"){
-        getCallsT_OutputProceduresSQL = "SELECT DISTINCT procedureCaller FROM CallT WHERE procedureCallee = '"
+        getCallsT_OutputProceduresSQL = "SELECT procedureCaller FROM CallT WHERE procedureCallee = '"
                                        + rightArg + "'; ";
     }
     else if (rightType== "procedure" || rightArg == "_" ){
@@ -754,25 +754,25 @@ bool Database::checkParentRelationship(string parent, string child) {
     return executeCheckQuery(sql, {parent, child});
 }
 
-//bool Database::checkModifiesRelationship(string statementCodeLine, string variableName,  optional<string> statementType = nullopt) {
-//    std::string sqlQuery = R"(
-//        SELECT EXISTS(
-//            SELECT 1 FROM Modifies m
-//            JOIN Statement s ON m.statementCodeLine = s.codeLine
-//            WHERE m.statementCodeLine = ? AND m.variableName = ?
-//    )";
-//
-//    std::vector<std::string> params = {statementCodeLine, variableName};
-//
-//    if (statementType) {
-//        sqlQuery += " AND s.statementType = ?";
-//        params.push_back(*statementType);
-//    }
-//
-//    sqlQuery += ")";
-//
-//    return executeCheckQuery(sqlQuery, params);
-//}
+bool Database::checkModifiesRelationship(string statementCodeLine, string variableName, string statementType) {
+    std::string sqlQuery = R"(
+        SELECT EXISTS(
+            SELECT 1 FROM Modifies m
+            JOIN Statement s ON m.statementCodeLine = s.codeLine
+            WHERE m.statementCodeLine = ? AND m.variableName = ?
+    )";
+
+    vector<string> params = {statementCodeLine, variableName};
+
+    if (statementType!="") {
+        sqlQuery += " AND s.statementType = ?";
+        params.push_back(statementType);
+    }
+
+    sqlQuery += ")";
+
+    return executeCheckQuery(sqlQuery, params);
+}
 
 
 
