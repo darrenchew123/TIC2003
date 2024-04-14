@@ -25,11 +25,21 @@ void HandleSimpleQueries::handleProcedureSelectType(const string& conditionType,
         Database::getModifies_OutputProcedures(rightArg, databaseResults, queryToExecute);
     } else if (conditionType == "Uses") {
         Database::getUses_OutputProcedures(leftArg, databaseResults, queryToExecute);
-    } else if (conditionType == "Calls") {
+    }
+    else if (conditionType == "Calls") {
         if (isT) {
             Database::getCallsT_OutputProcedures(leftArg, rightArg, databaseResults, queryToExecute);
-        } else {
+        }
+        else {
             Database::getCalls_OutputProcedures(leftArg, rightArg, databaseResults, queryToExecute);
+        }
+    }
+    else if (conditionType == "Parent") {
+        if (isT) {
+            Database::getParentT(queryToExecute.selectVar, queryToExecute.selectType, leftArg, rightArg, databaseResults, queryToExecute);
+        }
+        else {
+            Database::getParent(queryToExecute.selectVar, queryToExecute.selectType, leftArg, rightArg, databaseResults, queryToExecute);
         }
     } else {
         Database::getProcedures(databaseResults);
